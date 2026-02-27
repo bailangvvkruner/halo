@@ -80,7 +80,7 @@ jobs:
       - self-hosted
       - linux
       - x64
-    if: always() && needs.build.result == 'success' && github.event_name == 'release'
+    # if: always() && needs.build.result == 'success' && github.event_name == 'release'
     needs: build
     steps:
       - uses: actions/checkout@v4
