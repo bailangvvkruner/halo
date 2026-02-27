@@ -18,6 +18,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.charfilter.HTMLStripCharFilterFactory;
@@ -78,11 +79,15 @@ public class LuceneSearchEngine implements SearchEngine, InitializingBean, Dispo
     private final Converter<Document, HaloDocument> documentConverter =
         new DocumentConverter();
 
+    private final ReentrantReadWriteLock rwLock = new ReentrantReadWriteLock();
+
     private Analyzer analyzer;
 
     private volatile SearcherManager searcherManager;
 
     private Directory directory;
+
+    private volatile IndexWriter indexWriter;
 
     public LuceneSearchEngine(Path indexRootDir) {
         this.indexRootDir = indexRootDir;
@@ -104,16 +109,16 @@ public class LuceneSearchEngine implements SearchEngine, InitializingBean, Dispo
         });
         var deleteQuery = new TermInSetQuery("id", terms);
 
-        var writerConfig = new IndexWriterConfig(this.analyzer)
-            .setOpenMode(CREATE_OR_APPEND);
-        synchronized (this) {
-            try (var indexWriter = new IndexWriter(this.directory, writerConfig)) {
-                indexWriter.updateDocuments(deleteQuery, docs);
-            } catch (IOException e) {
-                throw Exceptions.propagate(e);
-            } finally {
-                this.refreshSearcherManager();
-            }
+        rwLock.writeLock().lock();
+        try {
+            ensureIndexWriter();
+            indexWriter.updateDocuments(deleteQuery, docs);
+            indexWriter.commit();
+        } catch (IOException e) {
+            throw Exceptions.propagate(e);
+        } finally {
+            rwLock.writeLock().unlock();
+            refreshSearcherManagerAsync();
         }
     }
 
@@ -122,31 +127,40 @@ public class LuceneSearchEngine implements SearchEngine, InitializingBean, Dispo
         var terms = new LinkedList<BytesRef>();
         haloDocIds.forEach(haloDocId -> terms.add(new BytesRef(haloDocId)));
         var deleteQuery = new TermInSetQuery("id", terms);
-        var writerConfig = new IndexWriterConfig(this.analyzer)
-            .setOpenMode(CREATE_OR_APPEND);
-        synchronized (this) {
-            try (var indexWriter = new IndexWriter(this.directory, writerConfig)) {
-                indexWriter.deleteDocuments(deleteQuery);
-            } catch (IOException e) {
-                throw Exceptions.propagate(e);
-            } finally {
-                this.refreshSearcherManager();
-            }
+
+        rwLock.writeLock().lock();
+        try {
+            ensureIndexWriter();
+            indexWriter.deleteDocuments(deleteQuery);
+            indexWriter.commit();
+        } catch (IOException e) {
+            throw Exceptions.propagate(e);
+        } finally {
+            rwLock.writeLock().unlock();
+            refreshSearcherManagerAsync();
         }
     }
 
     @Override
     public void deleteAll() {
-        var writerConfig = new IndexWriterConfig(this.analyzer)
-            .setOpenMode(CREATE_OR_APPEND);
-        synchronized (this) {
-            try (var indexWriter = new IndexWriter(this.directory, writerConfig)) {
-                indexWriter.deleteAll();
-            } catch (IOException e) {
-                throw Exceptions.propagate(e);
-            } finally {
-                this.refreshSearcherManager();
-            }
+        rwLock.writeLock().lock();
+        try {
+            ensureIndexWriter();
+            indexWriter.deleteAll();
+            indexWriter.commit();
+        } catch (IOException e) {
+            throw Exceptions.propagate(e);
+        } finally {
+            rwLock.writeLock().unlock();
+            refreshSearcherManagerAsync();
+        }
+    }
+
+    private void ensureIndexWriter() throws IOException {
+        if (indexWriter == null) {
+            var writerConfig = new IndexWriterConfig(this.analyzer)
+                .setOpenMode(CREATE_OR_APPEND);
+            indexWriter = new IndexWriter(this.directory, writerConfig);
         }
     }
 
@@ -155,7 +169,6 @@ public class LuceneSearchEngine implements SearchEngine, InitializingBean, Dispo
         IndexSearcher searcher = null;
         var sm = obtainSearcherManager();
         if (sm.isEmpty()) {
-            // indicate the index is empty
             var emptyResult = new SearchResult();
             emptyResult.setKeyword(option.getKeyword());
             emptyResult.setLimit(option.getLimit());
@@ -163,6 +176,8 @@ public class LuceneSearchEngine implements SearchEngine, InitializingBean, Dispo
             emptyResult.setHits(List.of());
             return emptyResult;
         }
+
+        rwLock.readLock().lock();
         try {
             searcher = searcherManager.acquire();
             var queryParser = new StandardQueryParser(analyzer);
@@ -281,6 +296,7 @@ public class LuceneSearchEngine implements SearchEngine, InitializingBean, Dispo
         } catch (IOException | QueryNodeException | InvalidTokenOffsetsException e) {
             throw new RuntimeException(e);
         } finally {
+            rwLock.readLock().unlock();
             if (searcher != null) {
                 try {
                     searcherManager.release(searcher);
@@ -309,8 +325,8 @@ public class LuceneSearchEngine implements SearchEngine, InitializingBean, Dispo
         if (this.searcherManager != null) {
             return Optional.of(this.searcherManager);
         }
-        synchronized (this) {
-            // double check
+        rwLock.writeLock().lock();
+        try {
             if (this.searcherManager != null) {
                 return Optional.of(this.searcherManager);
             }
@@ -323,13 +339,15 @@ public class LuceneSearchEngine implements SearchEngine, InitializingBean, Dispo
                 log.error("Failed to create searcher manager", e);
             }
             return Optional.empty();
+        } finally {
+            rwLock.writeLock().unlock();
         }
     }
 
-    private void refreshSearcherManager() {
+    private void refreshSearcherManagerAsync() {
         this.obtainSearcherManager().ifPresent(sm -> {
             try {
-                sm.maybeRefreshBlocking();
+                sm.maybeRefresh();
             } catch (IOException e) {
                 log.warn("Failed to refresh searcher", e);
             }
@@ -366,7 +384,10 @@ public class LuceneSearchEngine implements SearchEngine, InitializingBean, Dispo
 
     @Override
     public void destroy() throws Exception {
-        var closers = new ArrayList<Closeable>(4);
+        var closers = new ArrayList<Closeable>(5);
+        if (this.indexWriter != null) {
+            closers.add(this.indexWriter);
+        }
         if (this.analyzer != null) {
             closers.add(this.analyzer);
         }
@@ -377,6 +398,7 @@ public class LuceneSearchEngine implements SearchEngine, InitializingBean, Dispo
             closers.add(this.directory);
         }
         IOUtils.close(closers);
+        this.indexWriter = null;
         this.analyzer = null;
         this.searcherManager = null;
         this.directory = null;
@@ -477,7 +499,6 @@ public class LuceneSearchEngine implements SearchEngine, InitializingBean, Dispo
                 var updateTimestamp = updateTimestampField.numericValue().longValue();
                 haloDoc.setUpdateTimestamp(Instant.ofEpochMilli(updateTimestamp));
             }
-            // handle content later
             return haloDoc;
         }
 

@@ -3,7 +3,7 @@ name: Halo CI/CD
 on:
   push:
     branches:
-      - docker
+      - quarkus
   workflow_dispatch:
 
 concurrency:

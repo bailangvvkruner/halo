@@ -3,6 +3,15 @@ spring:
     url: r2dbc:pool:postgresql://localhost:5432/halo
     username: postgres
     password: openpostgresql
+    pool:
+      enabled: true
+      initialSize: 5
+      maxSize: 20
+      maxIdleTime: 30m
+      maxLifeTime: 60m
+      acquireRetry: 3
+      validationQuery: SELECT 1
+      validationDepth: REMOTE
   sql:
     init:
       mode: always

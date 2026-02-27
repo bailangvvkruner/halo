@@ -1,4 +1,7 @@
-FROM eclipse-temurin:21-jdk AS builder
+# CRaC-optimized Dockerfile for Spring Boot
+# Requires: Azul Zulu JDK with CRaC support or Liberica JDK with CRaC
+
+FROM azul/zulu-openjdk-crac:21 AS builder
 
 WORKDIR /build
 
@@ -15,17 +18,20 @@ RUN ./gradlew clean downloadPluginPresets build -x check -x generateGitPropertie
 WORKDIR /build/application
 RUN java -Djarmode=layertools -jar build/libs/*.jar extract
 
-RUN java -XX:ArchiveClassesAtExit=app.jsa \
-    -Xshare:off \
+# Training run to create CRaC checkpoint
+RUN java -XX:CRaCCheckpointTo=checkpoint \
     -cp "dependencies/*:spring-boot-loader/*:snapshot-dependencies/*:application/*" \
     org.springframework.boot.loader.launch.JarLauncher \
-    --server.port=0 \
-    --spring.main.lazy-initialization=true \
-    --spring.main.web-application-type=none || true
+    --server.port=8090 &
+
+# Wait for app to start, then trigger checkpoint
+RUN sleep 30 && \
+    curl -X POST http://localhost:8090/actuator/crac-checkpoint 2>/dev/null || \
+    kill -SIGUSR1 $(pgrep -f JarLauncher) || true
 
 ################################
 
-FROM ibm-semeru-runtimes:open-21-jre
+FROM azul/zulu-openjdk-crac:21-jre-crac
 
 LABEL maintainer="bailangvvking"
 
@@ -35,14 +41,9 @@ COPY --from=builder /build/application/dependencies/ ./
 COPY --from=builder /build/application/spring-boot-loader/ ./
 COPY --from=builder /build/application/snapshot-dependencies/ ./
 COPY --from=builder /build/application/application/ ./
-COPY --from=builder /build/application/app.jsa ./
+COPY --from=builder /build/application/checkpoint/ ./checkpoint/
 
-ENV JVM_OPTS="-XX:SharedArchiveFile=/application/app.jsa -Xshare:auto \
-    -Xms256m -Xmx512m \
-    -XX:+UseZGC -XX:+ZGenerational \
-    -XX:+UseStringDeduplication \
-    -XX:+TieredCompilation -XX:TieredStopAtLevel=1 \
-    -XX:CICompilerCount=2" \
+ENV JVM_OPTS="-XX:CRaCRestoreFrom=checkpoint" \
     HALO_WORK_DIR="/root/.halo2" \
     SPRING_CONFIG_LOCATION="optional:classpath:/;optional:file:/root/.halo2/" \
     TZ=Asia/Shanghai
@@ -52,7 +53,7 @@ RUN ln -sf /usr/share/zoneinfo/$TZ /etc/localtime \
 
 EXPOSE 8090
 
-HEALTHCHECK --interval=30s --timeout=3s --start-period=60s --retries=3 \
+HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
     CMD curl -f http://localhost:8090/actuator/health || exit 1
 
 ENTRYPOINT ["sh", "-c", "java ${JVM_OPTS} org.springframework.boot.loader.launch.JarLauncher ${0} ${@}"]
