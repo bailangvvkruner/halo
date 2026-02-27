@@ -10,7 +10,7 @@ RUN apt-get update && apt-get install -y curl ca-certificates && \
 
 COPY . .
 
-RUN ./gradlew clean downloadPluginPresets build -x check --no-daemon
+RUN ./gradlew clean downloadPluginPresets build -x check -x generateGitProperties --no-daemon
 
 WORKDIR /build/application
 RUN java -Djarmode=layertools -jar build/libs/*.jar extract
