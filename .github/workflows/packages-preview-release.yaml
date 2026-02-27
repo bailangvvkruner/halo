@@ -4,16 +4,21 @@ on:
     paths:
       - "ui/packages/**"
     branches:
-      - main
-  pull_request:
-    paths:
-      - "ui/packages/**"
-    branches:
-      - main
+      - build
+  # pull_request:
+  #   paths:
+  #     - "ui/packages/**"
+  #   branches:
+  #     - main
 jobs:
   packages-preview-release:
-    runs-on: ubuntu-latest
-    if: github.repository == 'halo-dev/halo'
+    # runs-on: ubuntu-latest
+    runs-on:
+      # ubuntu-latest
+      - self-hosted
+      - linux
+      - x64
+    # if: github.repository == 'halo-dev/halo'
     steps:
       - uses: actions/checkout@v4
       - name: Setup Environment

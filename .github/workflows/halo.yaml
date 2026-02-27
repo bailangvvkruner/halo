@@ -1,23 +1,23 @@
 name: Halo Workflow
 
 on:
-  pull_request:
-    branches:
-      - main
-      - release-*
-    paths:
-      - "**"
-      - "!**.md"
+  # pull_request:
+  #   branches:
+  #     - main
+  #     - release-*
+  #   paths:
+  #     - "**"
+  #     - "!**.md"
   push:
     branches:
-      - main
-      - release-*
-    paths:
-      - "**"
-      - "!**.md"
-  release:
-    types:
-      - published
+      - build
+  #     - release-*
+  #   paths:
+  #     - "**"
+  #     - "!**.md"
+  # release:
+  #   types:
+  #     - published
 
 concurrency: 
   group: ${{github.workflow}} - ${{github.ref}}
@@ -26,7 +26,12 @@ concurrency:
 jobs:
   test:
     if: github.event_name == 'pull_request' || github.event_name == 'push'
-    runs-on: ubuntu-latest
+    # runs-on: ubuntu-latest
+    runs-on:
+      # ubuntu-latest
+      - self-hosted
+      - linux
+      - x64
     steps:
       - uses: actions/checkout@v4
       - name: Setup Environment
@@ -34,11 +39,16 @@ jobs:
       - name: Check Halo
         run: ./gradlew clean check --configuration-cache --configuration-cache-problems=warn
       - name: Upload coverage reports to Codecov
-        if: github.repository == 'halo-dev/halo'
+        # if: github.repository == 'halo-dev/halo'
         uses: codecov/codecov-action@v4
 
   build:
-    runs-on: ubuntu-latest
+    # runs-on: ubuntu-latest
+    runs-on:
+      # ubuntu-latest
+      - self-hosted
+      - linux
+      - x64
     if: always() && (needs.test.result == 'skipped' || needs.test.result == 'success')
     needs: test
     steps:
@@ -56,7 +66,7 @@ jobs:
       - name: Build Halo
         run: ./gradlew clean downloadPluginPresets build -x check --configuration-cache --configuration-cache-problems=warn
       - name: Upload Artifacts
-        if: github.repository == 'halo-dev/halo'
+        # if: github.repository == 'halo-dev/halo'
         uses: actions/upload-artifact@v4
         with:
           name: halo-artifacts
@@ -64,7 +74,12 @@ jobs:
           retention-days: 1
 
   github-release:
-    runs-on: ubuntu-latest
+    # runs-on: ubuntu-latest
+    runs-on:
+      # ubuntu-latest
+      - self-hosted
+      - linux
+      - x64
     if: always() && needs.build.result == 'success' && github.event_name == 'release'
     needs: build
     steps:
@@ -75,7 +90,7 @@ jobs:
           name: halo-artifacts
           path: application/build/libs
       - name: Upload Artifacts
-        if: github.repository == 'halo-dev/halo'
+        # if: github.repository == 'halo-dev/halo'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: gh release upload ${{ github.event.release.tag_name }} application/build/libs/*
@@ -83,7 +98,12 @@ jobs:
   build-and-publish-container-image-with-buildpacks:
     needs: build
     if: always() && needs.build.result == 'success' && (github.event_name == 'push' || github.event_name == 'release')
-    runs-on: ubuntu-latest
+    # runs-on: ubuntu-latest
+    runs-on:
+      # ubuntu-latest
+      - self-hosted
+      - linux
+      - x64
     steps:
       - uses: actions/checkout@v4
       - name: Setup Environment
@@ -109,7 +129,12 @@ jobs:
 
   docker-build-and-push:
     if: always() && needs.build.result == 'success' && (github.event_name == 'push' || github.event_name == 'release')
-    runs-on: ubuntu-latest
+    # runs-on: ubuntu-latest
+    runs-on:
+      # ubuntu-latest
+      - self-hosted
+      - linux
+      - x64
     needs: build
     steps:
       - uses: actions/checkout@v4
@@ -128,11 +153,18 @@ jobs:
           f2c-registry-user: ${{ secrets.F2C_REGISTRY_USER }}
           f2c-registry-token: ${{ secrets.F2C_REGISTRY_TOKEN }}
           push: true
-          platforms: linux/amd64,linux/arm64/v8,linux/ppc64le,linux/s390x
+          # platforms: linux/amd64,linux/arm64/v8,linux/ppc64le,linux/s390x
+          platforms: |
+            linux/amd64
 
   e2e-test:
     if: always() && needs.build.result == 'success' && (github.event_name == 'pull_request' || github.event_name == 'push')
-    runs-on: ubuntu-latest
+    # runs-on: ubuntu-latest
+    runs-on:
+      # ubuntu-latest
+      - self-hosted
+      - linux
+      - x64
     needs: build
     steps:
       - uses: actions/checkout@v4
@@ -144,7 +176,7 @@ jobs:
       - name: Docker Build
         uses: docker/build-push-action@v5
         with:
-          tags: ghcr.io/halo-dev/halo-dev:main
+          # tags: ghcr.io/halo-dev/halo-dev:main
           push: false
           context: .
       - name: E2E Testing

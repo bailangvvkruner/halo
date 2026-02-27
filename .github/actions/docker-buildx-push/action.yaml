@@ -29,7 +29,9 @@ inputs:
   platforms:
     description: Target platforms for building image
     required: false
-    default: "linux/amd64,linux/arm/v7,linux/arm64/v8,linux/ppc64le,linux/s390x"
+    # default: "linux/amd64,linux/arm/v7,linux/arm64/v8,linux/ppc64le,linux/s390x"
+    default: |
+      linux/amd64
   image-name:
     description: The basic name of docker.
     required: false

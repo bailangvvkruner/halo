@@ -11,8 +11,13 @@ permissions:
 
 jobs:
   release:
-    runs-on: ubuntu-latest
-    if: github.repository == 'halo-dev/halo' && github.event.release.prerelease == false
+    # runs-on: ubuntu-latest
+    runs-on:
+      # ubuntu-latest
+      - self-hosted
+      - linux
+      - x64
+    # if: github.repository == 'halo-dev/halo' && github.event.release.prerelease == false
     steps:
       - uses: actions/checkout@v4
         with:
