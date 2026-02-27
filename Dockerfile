@@ -1,19 +1,32 @@
-FROM eclipse-temurin:21-jre as builder
+FROM eclipse-temurin:21-jdk AS builder
 
-WORKDIR application
-ARG JAR_FILE=application/build/libs/*.jar
-COPY ${JAR_FILE} application.jar
-RUN java -Djarmode=layertools -jar application.jar extract
+WORKDIR /build
+
+RUN apt-get update && apt-get install -y curl ca-certificates && \
+    curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \
+    apt-get install -y nodejs && \
+    npm install -g pnpm@10 && \
+    rm -rf /var/lib/apt/lists/*
+
+COPY . .
+
+RUN ./gradlew clean downloadPluginPresets build -x check --no-daemon
+
+WORKDIR /build/application
+RUN java -Djarmode=layertools -jar build/libs/*.jar extract
 
 ################################
 
 FROM ibm-semeru-runtimes:open-21-jre
-LABEL maintainer="johnniang <johnniang@foxmail.com>"
-WORKDIR application
-COPY --from=builder application/dependencies/ ./
-COPY --from=builder application/spring-boot-loader/ ./
-COPY --from=builder application/snapshot-dependencies/ ./
-COPY --from=builder application/application/ ./
+
+LABEL maintainer="bailangvvking"
+
+WORKDIR /application
+
+COPY --from=builder /build/application/dependencies/ ./
+COPY --from=builder /build/application/spring-boot-loader/ ./
+COPY --from=builder /build/application/snapshot-dependencies/ ./
+COPY --from=builder /build/application/application/ ./
 
 ENV JVM_OPTS="" \
     HALO_WORK_DIR="/root/.halo2" \
@@ -23,6 +36,6 @@ ENV JVM_OPTS="" \
 RUN ln -sf /usr/share/zoneinfo/$TZ /etc/localtime \
     && echo $TZ > /etc/timezone
 
-Expose 8090
+EXPOSE 8090
 
 ENTRYPOINT ["sh", "-c", "java ${JVM_OPTS} org.springframework.boot.loader.launch.JarLauncher ${0} ${@}"]
