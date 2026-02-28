@@ -15,14 +15,6 @@ RUN ./gradlew clean downloadPluginPresets build -x check -x generateGitPropertie
 WORKDIR /build/application
 RUN java -Djarmode=layertools -jar build/libs/*.jar extract
 
-RUN java -XX:ArchiveClassesAtExit=app.jsa \
-    -Xshare:off \
-    -cp "dependencies/*:spring-boot-loader/*:snapshot-dependencies/*:application/*" \
-    org.springframework.boot.loader.launch.JarLauncher \
-    --server.port=0 \
-    --spring.main.lazy-initialization=true \
-    --spring.main.web-application-type=none || true
-
 ################################
 
 FROM ibm-semeru-runtimes:open-21-jre
@@ -35,14 +27,13 @@ COPY --from=builder /build/application/dependencies/ ./
 COPY --from=builder /build/application/spring-boot-loader/ ./
 COPY --from=builder /build/application/snapshot-dependencies/ ./
 COPY --from=builder /build/application/application/ ./
-COPY --from=builder /build/application/app.jsa ./
 
-ENV JVM_OPTS="-XX:SharedArchiveFile=/application/app.jsa -Xshare:auto \
-    -Xms256m -Xmx512m \
+ENV JVM_OPTS="-Xms256m -Xmx512m \
     -XX:+UseZGC -XX:+ZGenerational \
     -XX:+UseStringDeduplication \
     -XX:+TieredCompilation -XX:TieredStopAtLevel=1 \
-    -XX:CICompilerCount=2" \
+    -XX:CICompilerCount=2 \
+    -Djava.awt.headless=true" \
     HALO_WORK_DIR="/root/.halo2" \
     SPRING_CONFIG_LOCATION="optional:classpath:/;optional:file:/root/.halo2/" \
     TZ=Asia/Shanghai
