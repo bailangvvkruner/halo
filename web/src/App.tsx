@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import {
   api,
   type Category,
+  type DashboardStats,
   type Health,
   type Menu,
   type Page,
@@ -22,6 +23,7 @@ export function App() {
   const [categories, setCategories] = useState<Category[]>([])
   const [tags, setTags] = useState<Tag[]>([])
   const [menus, setMenus] = useState<Menu[]>([])
+  const [stats, setStats] = useState<DashboardStats | null>(null)
 
   useEffect(() => {
     api.get<Health>('/health').then((response) => setHealth(response.data))
@@ -33,6 +35,7 @@ export function App() {
     api.get<Category[]>('/categories').then((response) => setCategories(response.data))
     api.get<Tag[]>('/tags').then((response) => setTags(response.data))
     api.get<Menu[]>('/menus').then((response) => setMenus(response.data))
+    api.get<DashboardStats>('/dashboard/stats').then((response) => setStats(response.data))
   }, [])
 
   return (
@@ -44,6 +47,21 @@ export function App() {
           <p>当前版本已完成旧项目归档、Go 服务启动、基础 API、Docker 构建与新前端骨架。</p>
           <p>健康状态：{health?.status ?? '加载中'}</p>
         </div>
+      </section>
+
+      <section className="grid-panels dashboard-grid">
+        <section className="panel compact-panel">
+          <h2>概览</h2>
+          <ul className="mini-list">
+            <li>文章：{stats?.posts ?? 0}</li>
+            <li>页面：{stats?.pages ?? 0}</li>
+            <li>分类：{stats?.categories ?? 0}</li>
+            <li>标签：{stats?.tags ?? 0}</li>
+            <li>用户：{stats?.users ?? 0}</li>
+            <li>主题：{stats?.themes ?? 0}</li>
+            <li>插件：{stats?.plugins ?? 0}</li>
+          </ul>
+        </section>
       </section>
 
       <section className="panel">

@@ -8,6 +8,16 @@ export type Health = {
   status: string
 }
 
+export type DashboardStats = {
+  posts: number
+  pages: number
+  categories: number
+  tags: number
+  users: number
+  themes: number
+  plugins: number
+}
+
 export type Post = {
   id: number
   title: string

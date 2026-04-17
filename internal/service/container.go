@@ -20,6 +20,7 @@ type Container struct {
 	Backups     *BackupService
 	Settings    *SettingService
 	Auth        *AuthService
+	Dashboard   *DashboardService
 }
 
 func NewContainer(db *gorm.DB, cfg config.Config) (*Container, error) {
@@ -36,6 +37,7 @@ func NewContainer(db *gorm.DB, cfg config.Config) (*Container, error) {
 	backups := NewBackupService(db)
 	settings := NewSettingService(db)
 	auth := NewAuthService(users, cfg)
+	dashboard := NewDashboardService(db)
 
 	if err := users.EnsureAdmin(); err != nil {
 		return nil, err
@@ -55,5 +57,6 @@ func NewContainer(db *gorm.DB, cfg config.Config) (*Container, error) {
 		Backups:     backups,
 		Settings:    settings,
 		Auth:        auth,
+		Dashboard:   dashboard,
 	}, nil
 }

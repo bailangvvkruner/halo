@@ -45,6 +45,10 @@ body {
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
+.dashboard-grid {
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+}
+
 .full-span {
   grid-column: 1 / -1;
 }

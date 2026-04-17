@@ -39,6 +39,15 @@ func registerRoutes(g *gin.Engine, cfg config.Config, services *service.Containe
 			c.JSON(http.StatusOK, gin.H{"status": "ok"})
 		})
 
+		api.GET("/dashboard/stats", func(c *gin.Context) {
+			stats, err := services.Dashboard.Stats(services)
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+				return
+			}
+			c.JSON(http.StatusOK, stats)
+		})
+
 		api.POST("/login", func(c *gin.Context) {
 			var payload struct {
 				Username string `json:"username"`
