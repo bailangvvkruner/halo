@@ -1,28 +1,32 @@
-FROM eclipse-temurin:21-jre as builder
+FROM node:22-alpine AS web-builder
 
-WORKDIR application
-ARG JAR_FILE=application/build/libs/*.jar
-COPY ${JAR_FILE} application.jar
-RUN java -Djarmode=layertools -jar application.jar extract
+WORKDIR /app/web
+COPY web/package.json web/package-lock.json* ./
+RUN if [ -f package-lock.json ]; then npm ci; else npm install; fi
+COPY web/ ./
+RUN npm run build
 
-################################
+FROM golang:1.25-alpine AS builder
 
-FROM ibm-semeru-runtimes:open-21-jre
-LABEL maintainer="johnniang <johnniang@foxmail.com>"
-WORKDIR application
-COPY --from=builder application/dependencies/ ./
-COPY --from=builder application/spring-boot-loader/ ./
-COPY --from=builder application/snapshot-dependencies/ ./
-COPY --from=builder application/application/ ./
+WORKDIR /app
+COPY go.mod ./
+RUN go mod download
+COPY . .
+RUN CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -o /halo ./cmd/halo
 
-ENV JVM_OPTS="" \
-    HALO_WORK_DIR="/root/.halo2" \
-    SPRING_CONFIG_LOCATION="optional:classpath:/;optional:file:/root/.halo2/" \
+FROM alpine:3.22
+
+RUN apk add --no-cache ca-certificates tzdata
+WORKDIR /app
+
+ENV HALO_WORK_DIR=/root/.halo2 \
+    HALO_ADDR=:8090 \
+    HALO_DB_PATH=/root/.halo2/db/halo.db \
     TZ=Asia/Shanghai
 
-RUN ln -sf /usr/share/zoneinfo/$TZ /etc/localtime \
-    && echo $TZ > /etc/timezone
+COPY --from=builder /halo /usr/local/bin/halo
+COPY --from=web-builder /app/web/dist ./web/dist
 
-Expose 8090
+EXPOSE 8090
 
-ENTRYPOINT ["sh", "-c", "java ${JVM_OPTS} org.springframework.boot.loader.launch.JarLauncher ${0} ${@}"]
+ENTRYPOINT ["/usr/local/bin/halo"]

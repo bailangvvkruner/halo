@@ -1,97 +1,60 @@
-<p align="center">
-    <a href="https://www.halo.run" target="_blank" rel="noopener noreferrer">
-        <img width="100" src="https://www.halo.run/logo" alt="Halo logo" />
-    </a>
-</p>
+# Halo Go
 
-<p align="center"><b>Halo</b> [ˈheɪloʊ]，强大易用的开源建站工具。</p>
-<p align="center">
-<a href="https://github.com/halo-dev/halo/releases"><img alt="GitHub release" src="https://img.shields.io/github/release/halo-dev/halo.svg?style=flat-square&include_prereleases" /></a>
-<a href="https://hub.docker.com/r/halohub/halo"><img alt="Docker pulls" src="https://img.shields.io/docker/pulls/halohub/halo?style=flat-square" /></a>
-<a href="https://github.com/halo-dev/halo/commits"><img alt="GitHub last commit" src="https://img.shields.io/github/last-commit/halo-dev/halo.svg?style=flat-square" /></a>
-<a href="https://github.com/halo-dev/halo/actions"><img alt="GitHub Workflow Status" src="https://img.shields.io/github/actions/workflow/status/halo-dev/halo/halo.yaml?branch=main&style=flat-square" /></a>
-<a href="https://codecov.io/gh/halo-dev/halo"><img alt="Codecov percentage" src="https://img.shields.io/codecov/c/github/halo-dev/halo/main?style=flat-square&token=YsRUg9fall"/></a>
-<a href="https://gitcode.com/feizhiyun/Halo"><img src="https://gitcode.com/feizhiyun/Halo/star/badge.svg" alt="GitCode Stars"></a>
-<a href="https://www.producthunt.com/posts/halo-6b401e75-bb58-4dff-9fe9-2ada3323c874?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-halo&#0045;6b401e75&#0045;bb58&#0045;4dff&#0045;9fe9&#0045;2ada3323c874" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=407442&theme=light" alt="Halo - Powerful&#0032;and&#0032;easy&#0045;to&#0045;use&#0032;Open&#0045;Source&#0032;website&#0032;building&#0032;tool | Product Hunt" style="height: 20px;" height="20px" /></a>
-<br />
-<a href="https://www.halo.run">官网</a>
-<a href="https://docs.halo.run">文档</a>
-<a href="https://bbs.halo.run">社区</a>
-<a href="https://gitee.com/halo-dev">Gitee</a>
-<a href="https://t.me/halo_dev">Telegram 频道</a>
-</p>
+这是一个基于 Go 和现代前端重构中的 Halo 实验版本。
 
-[![Watch the video](https://www.halo.run/upload/halo-github-screenshot.png)](https://www.bilibili.com/video/BV15x4y1U7RU/?share_source=copy_web&vd_source=0ab6cf86ca512a363f04f18b86f55b86)
+## 当前状态
 
-------------------------------
+- 旧项目已整体保存在 [old](file:///d:/Linux/docker/bailangvvkruner/halo/old)
+- Go 重构建议书位于 [go-refactor-proposal.md](file:///d:/Linux/docker/bailangvvkruner/halo/old/docs/go-refactor-proposal.md)
+- 当前仓库根目录开始承载新的 Go 后端与新前端实现
+- 当前已具备文章、页面、分类、标签、菜单、主题、插件、用户、设置、备份等基础数据链路
+- 当前已具备 Go 后端编译、前端生产构建与 Dockerfile 多阶段构建定义
 
-## Halo 是什么？
+## 当前功能
 
-Halo 是一款强大易用的开源建站工具，从个人博客、知识库，到企业官网、在线商城，Halo 都能助您轻松实现，一站式满足您的多样化建站需求。
+- Go 后端：Gin + GORM + SQLite
+- 新前端：React + Vite
+- 工作目录：自动创建 `db`、`logs`、`themes`、`plugins`、`attachments`、`backups`
+- 基础接口：健康检查、登录、文章、页面、分类、标签、菜单、评论、主题、插件、附件、备份、设置、用户
+- 初始化数据：默认主题、默认插件、默认设置、示例文章、示例页面、示例分类、示例标签、示例菜单、示例备份
 
-## 快速开始
+## 本地运行
 
-如果你的设备有 Docker 环境，可以使用以下命令快速启动一个 Halo 的体验环境：
+### 后端
 
 ```bash
-docker run -d --name halo -p 8090:8090 -v ~/.halo2:/root/.halo2 halohub/halo:2.23
+go run ./cmd/halo
 ```
 
-或者点击下方按钮使用 [Gitpod](https://gitpod.io/) 或 [ClawCloud Run](https://template.us-west-1.run.claw.cloud/deploy?templateName=halo) 启动一个体验环境：
+默认监听地址：`http://localhost:8090`
 
-[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/halo-sigs/gitpod-demo)
+### 前端
 
-[![Run on ClawCloud](https://raw.githubusercontent.com/ClawCloud/Run-Template/refs/heads/main/Run-on-ClawCloud.svg)](https://template.us-west-1.run.claw.cloud/deploy?templateName=halo)
+```bash
+cd web
+npm install
+npm run dev
+```
 
-**以上方式仅作为体验使用，推荐使用开源 Linux 服务器运维管理面板 [1Panel](https://github.com/1Panel-dev/1Panel) 进行部署（[查看文档](https://docs.halo.run/getting-started/install/1panel)），轻松搞定反向代理、SSL 证书及升级备份任务。更多部署方式，请[查看文档](https://docs.halo.run/category/%E5%AE%89%E8%A3%85%E6%8C%87%E5%8D%97)。**
+开发前端地址：`http://localhost:3000`
 
-## 在线体验
+在 Windows PowerShell 下如果遇到脚本执行限制，可使用：
 
-- 环境地址：<https://demo.halocms.site>
-- 后台地址：<https://demo.halocms.site/console>
-- 用户名：`demo`
-- 密码：`P@ssw0rd123..`
+```powershell
+& npm.cmd install
+& .\node_modules\.bin\vite.cmd
+```
 
-## 版本对比
+## 已验证
 
-**Halo 社区版**：开源免费， 遵循 GPLv3 协议
+- `go build ./cmd/halo`
+- `web` 前端生产构建
 
-- [x] 适合个人开发者、技术爱好者、开源项目
-- [x] 零成本搭建博客、作品集、技术文档站
-- [x] 超过 100 款免费主题和插件
+当前环境未安装 Docker，因此尚未完成镜像实机构建验证，但 [Dockerfile](file:///d:/Linux/docker/bailangvvkruner/halo/Dockerfile) 已按后端和前端多阶段构建方式配置。
 
-**Halo 专业版**：在社区版基础上，集成 10+ 高价值功能
+## Docker 运行
 
-- [x] 移动端 APP：随时随地管理内容
-- [x] AI 智能建站：快速生成专业站点
-- [x] 手机号验证登录：提升安全与用户体验
-- [x] 全站私有化部署：保障数据主权
-- [x] 付费主题/插件市场：专享精品主题和 SEO 优化、付费阅读、AI 助手等 10 款付费插件
-
-**Halo 商业版**：在专业版基础上，集成在线商城重磅功能
-
-- [x] 一体化在线商城：商品管理、订单处理、支付对接全流程
-- [x] 为中国商家定制：无缝集成微信支付、支付宝等本土生态
-- [x] 品牌官网 + CMS + 线上店铺一站式落地，助力生意高效增长
-
-关于三个版本的详细对比，请参考[版本对比](https://www.lxware.cn/halo)。
-
-## 生态
-
-可访问 [官方应用市场](https://www.halo.run/store/apps) 或 [awesome-halo 仓库](https://github.com/halo-sigs/awesome-halo) 查看适用于 Halo 2.x 的主题和插件。
-
-## 许可证
-
-[![license](https://img.shields.io/github/license/halo-dev/halo.svg?style=flat-square)](https://github.com/halo-dev/halo/blob/master/LICENSE)
-
-Halo 使用 GPL-v3.0 协议开源，请遵守开源协议。
-
-## 贡献
-
-参考 [CONTRIBUTING](https://github.com/halo-dev/halo/blob/main/CONTRIBUTING.md)。
-
-<a href="https://github.com/halo-dev/halo/graphs/contributors"><img src="https://opencollective.com/halo/contributors.svg?width=890&button=false" /></a>
-
-## 状态
-
-![Repobeats analytics](https://repobeats.axiom.co/api/embed/ad008b2151c22e7cf734d2688befaa795d593b95.svg "Repobeats analytics image")
+```bash
+docker build -t halo-go .
+docker run -d --name halo-go -p 8090:8090 -v ~/.halo2:/root/.halo2 halo-go
+```

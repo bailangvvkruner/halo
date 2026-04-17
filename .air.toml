@@ -1,0 +1,11 @@
+root = "."
+tmp_dir = "tmp"
+
+[build]
+cmd = "go build -o ./tmp/halo ./cmd/halo"
+bin = "./tmp/halo"
+include_ext = ["go", "tpl", "tmpl", "html", "yaml", "yml", "json", "css", "js"]
+exclude_dir = ["tmp", "vendor", "old", "web/dist"]
+
+[log]
+time = true
