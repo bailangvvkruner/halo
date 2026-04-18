@@ -152,29 +152,72 @@ export function CommentsSection({ comments }: { comments: Comment[] }) {
 
   return (
     <section className="grid-panels dashboard-grid">
-      <section className="panel compact-panel">
-        <h2>评论管理</h2>
-        <ul className="mini-list">
-          {comments.map((item) => (
-            <li key={item.id}>
-              <button className="link-button" onClick={() => loadReplies(item.id)}>{item.author} · {item.content}</button>
-            </li>
-          ))}
-        </ul>
+      <section className="panel posts-panel compact-panel">
+        <div className="section-toolbar">
+          <div>
+            <h2>评论管理</h2>
+            <p className="section-subtitle">评论列表、内容预览与回复审核。</p>
+          </div>
+          <button>导出评论</button>
+        </div>
+        <div className="table-shell">
+          <table className="admin-table">
+            <thead>
+              <tr>
+                <th>作者</th>
+                <th>邮箱</th>
+                <th>内容</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              {comments.map((item) => (
+                <tr key={item.id}>
+                  <td>{item.author}</td>
+                  <td>{item.email}</td>
+                  <td>{item.content}</td>
+                  <td><button className="link-button" onClick={() => loadReplies(item.id)}>查看回复</button></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </section>
-      <section className="panel compact-panel">
-        <h2>回复</h2>
-        <ul className="mini-list">
-          {replies.map((reply) => (
-            <li key={reply.id} className="reply-item">
-              <span>{reply.author} · {reply.content} · {reply.status}</span>
-              <div className="reply-actions">
-                <button onClick={() => approveReply(reply.id)}>通过</button>
-                <button className="danger-button" onClick={() => rejectReply(reply.id)}>拒绝</button>
-              </div>
-            </li>
-          ))}
-        </ul>
+      <section className="panel posts-panel compact-panel">
+        <div className="section-toolbar">
+          <div>
+            <h2>回复审核</h2>
+            <p className="section-subtitle">按评论查看并审核回复内容。</p>
+          </div>
+          <button>创建回复</button>
+        </div>
+        <div className="table-shell">
+          <table className="admin-table">
+            <thead>
+              <tr>
+                <th>作者</th>
+                <th>内容</th>
+                <th>状态</th>
+                <th>审核</th>
+              </tr>
+            </thead>
+            <tbody>
+              {replies.map((reply) => (
+                <tr key={reply.id}>
+                  <td>{reply.author}</td>
+                  <td>{reply.content}</td>
+                  <td>{reply.status}</td>
+                  <td>
+                    <div className="reply-actions">
+                      <button onClick={() => approveReply(reply.id)}>通过</button>
+                      <button className="danger-button" onClick={() => rejectReply(reply.id)}>拒绝</button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
         <div className="inline-form">
           <input value={replyForm.author} onChange={(event) => setReplyForm((current) => ({ ...current, author: event.target.value }))} placeholder="作者" />
           <input value={replyForm.email} onChange={(event) => setReplyForm((current) => ({ ...current, email: event.target.value }))} placeholder="邮箱" />
@@ -188,7 +231,13 @@ export function CommentsSection({ comments }: { comments: Comment[] }) {
 }
 
 export function UsersSection({ users }: { users: User[] }) {
-  return <SimpleSection title="用户管理" items={users.map((item) => `${item.username} · ${item.role}`)} />
+  return <ContentTableSection title="用户管理" subtitle="用户账号与角色管理。" primaryAction="新建用户" rows={users.map((item) => ({
+    title: item.username,
+    description: item.role,
+    metaA: item.username,
+    metaB: item.role,
+    metaC: '用户'
+  }))} searchPlaceholder="搜索用户名" columnA="用户名" columnB="账号" columnC="角色" columnD="类型" />
 }
 
 export function PluginsSection({ plugins, themes }: { plugins: Plugin[]; themes: Theme[] }) {
@@ -212,37 +261,70 @@ export function PluginsSection({ plugins, themes }: { plugins: Plugin[]; themes:
   }
 
   return (
-    <section className="grid-panels">
-      <section className="panel compact-panel">
-        <h2>插件</h2>
-        <ul className="mini-list">
-          {plugins.map((item) => (
-            <li key={item.id}>{item.displayName} · {item.enabled ? '已启用' : '未启用'}</li>
-          ))}
-        </ul>
-        <div className="inline-form">
+    <section className="grid-panels dashboard-grid">
+      <section className="panel posts-panel compact-panel">
+        <div className="section-toolbar">
+          <div>
+            <h2>插件管理</h2>
+            <p className="section-subtitle">插件列表与目录扫描。</p>
+          </div>
           <button onClick={scanPlugins}>扫描插件目录</button>
-          {scannedPlugins.map((item) => (
-            <p key={item.name}>{item.displayName} · {item.path}</p>
-          ))}
+        </div>
+        <div className="table-shell">
+          <table className="admin-table">
+            <thead>
+              <tr>
+                <th>插件</th>
+                <th>名称</th>
+                <th>状态</th>
+                <th>扫描结果</th>
+              </tr>
+            </thead>
+            <tbody>
+              {plugins.map((item) => (
+                <tr key={item.id}>
+                  <td>{item.displayName}</td>
+                  <td>{item.name}</td>
+                  <td>{item.enabled ? '已启用' : '未启用'}</td>
+                  <td>{scannedPlugins.find((plugin) => plugin.name === item.name)?.path || '—'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </section>
-      <section className="panel compact-panel">
-        <h2>主题</h2>
-        <ul className="mini-list">
-          {themes.map((item) => (
-            <li key={item.id}>{item.displayName} · {item.activated ? '已启用' : '未启用'}</li>
-          ))}
-        </ul>
-        <div className="inline-form">
-          <button onClick={scanThemes}>扫描主题目录</button>
-          <button onClick={syncThemes}>同步到主题列表</button>
-          {scannedThemes.map((item) => (
-            <p key={item.name}>{item.displayName}</p>
-          ))}
-          {syncedThemes.map((item) => (
-            <p key={`synced-${item.id}`}>{item.displayName} · {item.activated ? '已启用' : '未启用'}</p>
-          ))}
+      <section className="panel posts-panel compact-panel">
+        <div className="section-toolbar">
+          <div>
+            <h2>主题管理</h2>
+            <p className="section-subtitle">主题列表、目录扫描与同步。</p>
+          </div>
+          <div className="reply-actions">
+            <button onClick={scanThemes}>扫描主题目录</button>
+            <button onClick={syncThemes}>同步到主题列表</button>
+          </div>
+        </div>
+        <div className="table-shell">
+          <table className="admin-table">
+            <thead>
+              <tr>
+                <th>主题</th>
+                <th>名称</th>
+                <th>状态</th>
+                <th>扫描结果</th>
+              </tr>
+            </thead>
+            <tbody>
+              {themes.map((item) => (
+                <tr key={item.id}>
+                  <td>{item.displayName}</td>
+                  <td>{item.name}</td>
+                  <td>{item.activated ? '已启用' : '未启用'}</td>
+                  <td>{scannedThemes.find((theme) => theme.name === item.name)?.displayName || syncedThemes.find((theme) => theme.name === item.name)?.displayName || '—'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </section>
     </section>
@@ -254,7 +336,13 @@ export function SettingsSection({ settings }: { settings: Setting[] }) {
 }
 
 export function AttachmentsSection({ attachments }: { attachments: Attachment[] }) {
-  return <SimpleSection title="附件" items={attachments.map((item) => `${item.filename} · ${item.url}`)} />
+  return <ContentTableSection title="附件管理" subtitle="附件列表与公开 URL。" primaryAction="上传附件" rows={attachments.map((item) => ({
+    title: item.filename,
+    description: item.url,
+    metaA: item.path,
+    metaB: `${item.size} bytes`,
+    metaC: '附件'
+  }))} searchPlaceholder="搜索附件名称" columnA="文件名" columnB="路径" columnC="大小" columnD="类型" />
 }
 
 export function RegistrationSection() {
