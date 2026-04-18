@@ -30,3 +30,23 @@ func (s *PostService) FindBySlug(slug string) (*model.Post, error) {
 func (s *PostService) Create(post *model.Post) error {
 	return s.db.Create(post).Error
 }
+
+func (s *PostService) Get(id uint) (*model.Post, error) {
+	var post model.Post
+	if err := s.db.First(&post, id).Error; err != nil {
+		return nil, err
+	}
+	return &post, nil
+}
+
+func (s *PostService) Update(id uint, post *model.Post) error {
+	return s.db.Model(&model.Post{}).Where("id = ?", id).Updates(post).Error
+}
+
+func (s *PostService) Delete(id uint) error {
+	return s.db.Delete(&model.Post{}, id).Error
+}
+
+func (s *PostService) Search(keyword string, result *[]model.Post) error {
+	return s.db.Where("title LIKE ? OR content LIKE ? OR excerpt LIKE ?", "%"+keyword+"%", "%"+keyword+"%", "%"+keyword+"%").Find(result).Error
+}

@@ -18,3 +18,10 @@ func (s *ThemeService) List() ([]model.Theme, error) {
 	var items []model.Theme
 	return items, s.db.Order("id desc").Find(&items).Error
 }
+
+func (s *ThemeService) Activate(id uint) error {
+	if err := s.db.Model(&model.Theme{}).Where("activated = ?", true).Update("activated", false).Error; err != nil {
+		return err
+	}
+	return s.db.Model(&model.Theme{}).Where("id = ?", id).Update("activated", true).Error
+}

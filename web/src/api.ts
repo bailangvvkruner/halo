@@ -55,6 +55,14 @@ export type Menu = {
   items: string
 }
 
+export type Comment = {
+  id: number
+  postId: number
+  author: string
+  email: string
+  content: string
+}
+
 export type Theme = {
   id: number
   name: string

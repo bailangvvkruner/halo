@@ -1,7 +1,10 @@
 package httpserver
 
 import (
+	"halo/internal/middleware"
+	"halo/internal/model"
 	"net/http"
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -9,8 +12,6 @@ import (
 	"halo/internal/service"
 
 	"github.com/gin-contrib/cors"
-	"github.com/gin-contrib/sessions"
-	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
 )
 
@@ -21,7 +22,6 @@ type Server struct {
 func New(cfg config.Config, services *service.Container) *Server {
 	g := gin.Default()
 	g.Use(cors.Default())
-	g.Use(sessions.Sessions("halo", cookie.NewStore([]byte(cfg.SessionKey))))
 
 	registerRoutes(g, cfg, services)
 
@@ -33,6 +33,7 @@ func (s *Server) Run(addr string) error {
 }
 
 func registerRoutes(g *gin.Engine, cfg config.Config, services *service.Container) {
+	authMw := middleware.AuthMiddleware(services.Auth)
 	api := g.Group("/api")
 	{
 		api.GET("/health", func(c *gin.Context) {
@@ -76,7 +77,7 @@ func registerRoutes(g *gin.Engine, cfg config.Config, services *service.Containe
 			c.JSON(http.StatusOK, posts)
 		})
 
-		api.POST("/posts", func(c *gin.Context) {
+		api.POST("/posts", authMw, func(c *gin.Context) {
 			var payload struct {
 				Title     string `json:"title"`
 				Slug      string `json:"slug"`
@@ -97,6 +98,59 @@ func registerRoutes(g *gin.Engine, cfg config.Config, services *service.Containe
 			c.JSON(http.StatusCreated, post)
 		})
 
+		api.GET("/posts/:id", func(c *gin.Context) {
+			id, err := parseUintParam(c, "id")
+			if err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+				return
+			}
+			post, err := services.Posts.Get(id)
+			if err != nil {
+				c.JSON(http.StatusNotFound, gin.H{"message": err.Error()})
+				return
+			}
+			c.JSON(http.StatusOK, post)
+		})
+
+		api.PUT("/posts/:id", authMw, func(c *gin.Context) {
+			id, err := parseUintParam(c, "id")
+			if err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+				return
+			}
+			var payload struct {
+				Title     string `json:"title"`
+				Slug      string `json:"slug"`
+				Content   string `json:"content"`
+				Excerpt   string `json:"excerpt"`
+				Published bool   `json:"published"`
+			}
+			if err := c.ShouldBindJSON(&payload); err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+				return
+			}
+			post := toPost(payload.Title, payload.Slug, payload.Content, payload.Excerpt, payload.Published)
+			post.ID = id
+			if err := services.Posts.Update(id, post); err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+				return
+			}
+			c.JSON(http.StatusOK, post)
+		})
+
+		api.DELETE("/posts/:id", authMw, func(c *gin.Context) {
+			id, err := parseUintParam(c, "id")
+			if err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+				return
+			}
+			if err := services.Posts.Delete(id); err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+				return
+			}
+			c.Status(http.StatusNoContent)
+		})
+
 		api.GET("/comments", func(c *gin.Context) {
 			items, err := services.Comments.List()
 			if err != nil {
@@ -104,6 +158,46 @@ func registerRoutes(g *gin.Engine, cfg config.Config, services *service.Containe
 				return
 			}
 			c.JSON(http.StatusOK, items)
+		})
+
+		api.GET("/comments/:id", func(c *gin.Context) {
+			id, err := parseUintParam(c, "id")
+			if err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+				return
+			}
+			item, err := services.Comments.Get(id)
+			if err != nil {
+				c.JSON(http.StatusNotFound, gin.H{"message": err.Error()})
+				return
+			}
+			c.JSON(http.StatusOK, item)
+		})
+
+		api.POST("/comments", func(c *gin.Context) {
+			var payload model.Comment
+			if err := c.ShouldBindJSON(&payload); err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+				return
+			}
+			if err := services.Comments.Create(&payload); err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+				return
+			}
+			c.JSON(http.StatusCreated, payload)
+		})
+
+		api.DELETE("/comments/:id", authMw, func(c *gin.Context) {
+			id, err := parseUintParam(c, "id")
+			if err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+				return
+			}
+			if err := services.Comments.Delete(id); err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+				return
+			}
+			c.Status(http.StatusNoContent)
 		})
 
 		api.GET("/pages", func(c *gin.Context) {
@@ -115,6 +209,64 @@ func registerRoutes(g *gin.Engine, cfg config.Config, services *service.Containe
 			c.JSON(http.StatusOK, items)
 		})
 
+		api.GET("/pages/:id", func(c *gin.Context) {
+			id, err := parseUintParam(c, "id")
+			if err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+				return
+			}
+			item, err := services.Pages.Get(id)
+			if err != nil {
+				c.JSON(http.StatusNotFound, gin.H{"message": err.Error()})
+				return
+			}
+			c.JSON(http.StatusOK, item)
+		})
+
+		api.POST("/pages", authMw, func(c *gin.Context) {
+			var payload model.Page
+			if err := c.ShouldBindJSON(&payload); err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+				return
+			}
+			if err := services.Pages.Create(&payload); err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+				return
+			}
+			c.JSON(http.StatusCreated, payload)
+		})
+
+		api.PUT("/pages/:id", authMw, func(c *gin.Context) {
+			id, err := parseUintParam(c, "id")
+			if err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+				return
+			}
+			var payload model.Page
+			if err := c.ShouldBindJSON(&payload); err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+				return
+			}
+			if err := services.Pages.Update(id, &payload); err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+				return
+			}
+			c.JSON(http.StatusOK, payload)
+		})
+
+		api.DELETE("/pages/:id", authMw, func(c *gin.Context) {
+			id, err := parseUintParam(c, "id")
+			if err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+				return
+			}
+			if err := services.Pages.Delete(id); err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+				return
+			}
+			c.Status(http.StatusNoContent)
+		})
+
 		api.GET("/categories", func(c *gin.Context) {
 			items, err := services.Categories.List()
 			if err != nil {
@@ -122,6 +274,64 @@ func registerRoutes(g *gin.Engine, cfg config.Config, services *service.Containe
 				return
 			}
 			c.JSON(http.StatusOK, items)
+		})
+
+		api.GET("/categories/:id", func(c *gin.Context) {
+			id, err := parseUintParam(c, "id")
+			if err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+				return
+			}
+			item, err := services.Categories.Get(id)
+			if err != nil {
+				c.JSON(http.StatusNotFound, gin.H{"message": err.Error()})
+				return
+			}
+			c.JSON(http.StatusOK, item)
+		})
+
+		api.POST("/categories", authMw, func(c *gin.Context) {
+			var payload model.Category
+			if err := c.ShouldBindJSON(&payload); err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+				return
+			}
+			if err := services.Categories.Create(&payload); err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+				return
+			}
+			c.JSON(http.StatusCreated, payload)
+		})
+
+		api.PUT("/categories/:id", authMw, func(c *gin.Context) {
+			id, err := parseUintParam(c, "id")
+			if err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+				return
+			}
+			var payload model.Category
+			if err := c.ShouldBindJSON(&payload); err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+				return
+			}
+			if err := services.Categories.Update(id, &payload); err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+				return
+			}
+			c.JSON(http.StatusOK, payload)
+		})
+
+		api.DELETE("/categories/:id", authMw, func(c *gin.Context) {
+			id, err := parseUintParam(c, "id")
+			if err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+				return
+			}
+			if err := services.Categories.Delete(id); err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+				return
+			}
+			c.Status(http.StatusNoContent)
 		})
 
 		api.GET("/tags", func(c *gin.Context) {
@@ -133,6 +343,64 @@ func registerRoutes(g *gin.Engine, cfg config.Config, services *service.Containe
 			c.JSON(http.StatusOK, items)
 		})
 
+		api.GET("/tags/:id", func(c *gin.Context) {
+			id, err := parseUintParam(c, "id")
+			if err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+				return
+			}
+			item, err := services.Tags.Get(id)
+			if err != nil {
+				c.JSON(http.StatusNotFound, gin.H{"message": err.Error()})
+				return
+			}
+			c.JSON(http.StatusOK, item)
+		})
+
+		api.POST("/tags", authMw, func(c *gin.Context) {
+			var payload model.Tag
+			if err := c.ShouldBindJSON(&payload); err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+				return
+			}
+			if err := services.Tags.Create(&payload); err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+				return
+			}
+			c.JSON(http.StatusCreated, payload)
+		})
+
+		api.PUT("/tags/:id", authMw, func(c *gin.Context) {
+			id, err := parseUintParam(c, "id")
+			if err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+				return
+			}
+			var payload model.Tag
+			if err := c.ShouldBindJSON(&payload); err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+				return
+			}
+			if err := services.Tags.Update(id, &payload); err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+				return
+			}
+			c.JSON(http.StatusOK, payload)
+		})
+
+		api.DELETE("/tags/:id", authMw, func(c *gin.Context) {
+			id, err := parseUintParam(c, "id")
+			if err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+				return
+			}
+			if err := services.Tags.Delete(id); err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+				return
+			}
+			c.Status(http.StatusNoContent)
+		})
+
 		api.GET("/menus", func(c *gin.Context) {
 			items, err := services.Menus.List()
 			if err != nil {
@@ -140,6 +408,64 @@ func registerRoutes(g *gin.Engine, cfg config.Config, services *service.Containe
 				return
 			}
 			c.JSON(http.StatusOK, items)
+		})
+
+		api.GET("/menus/:id", func(c *gin.Context) {
+			id, err := parseUintParam(c, "id")
+			if err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+				return
+			}
+			item, err := services.Menus.Get(id)
+			if err != nil {
+				c.JSON(http.StatusNotFound, gin.H{"message": err.Error()})
+				return
+			}
+			c.JSON(http.StatusOK, item)
+		})
+
+		api.POST("/menus", authMw, func(c *gin.Context) {
+			var payload model.Menu
+			if err := c.ShouldBindJSON(&payload); err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+				return
+			}
+			if err := services.Menus.Create(&payload); err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+				return
+			}
+			c.JSON(http.StatusCreated, payload)
+		})
+
+		api.PUT("/menus/:id", authMw, func(c *gin.Context) {
+			id, err := parseUintParam(c, "id")
+			if err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+				return
+			}
+			var payload model.Menu
+			if err := c.ShouldBindJSON(&payload); err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+				return
+			}
+			if err := services.Menus.Update(id, &payload); err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+				return
+			}
+			c.JSON(http.StatusOK, payload)
+		})
+
+		api.DELETE("/menus/:id", authMw, func(c *gin.Context) {
+			id, err := parseUintParam(c, "id")
+			if err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+				return
+			}
+			if err := services.Menus.Delete(id); err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+				return
+			}
+			c.Status(http.StatusNoContent)
 		})
 
 		api.GET("/themes", func(c *gin.Context) {
@@ -169,6 +495,38 @@ func registerRoutes(g *gin.Engine, cfg config.Config, services *service.Containe
 			c.JSON(http.StatusOK, items)
 		})
 
+		api.POST("/attachments/upload", authMw, func(c *gin.Context) {
+			file, err := c.FormFile("file")
+			if err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+				return
+			}
+
+			uploadDir := filepath.Join(cfg.WorkDir, "attachments")
+			if err := os.MkdirAll(uploadDir, 0o755); err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+				return
+			}
+
+			filename := filepath.Base(file.Filename)
+			savePath := filepath.Join(uploadDir, filename)
+			if err := c.SaveUploadedFile(file, savePath); err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+				return
+			}
+
+			attachment := &model.Attachment{
+				Filename: filename,
+				Path:     savePath,
+				Size:     file.Size,
+			}
+			if err := services.Attachments.Create(attachment); err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+				return
+			}
+			c.JSON(http.StatusCreated, attachment)
+		})
+
 		api.GET("/backups", func(c *gin.Context) {
 			items, err := services.Backups.List()
 			if err != nil {
@@ -176,6 +534,51 @@ func registerRoutes(g *gin.Engine, cfg config.Config, services *service.Containe
 				return
 			}
 			c.JSON(http.StatusOK, items)
+		})
+
+		api.POST("/backups", authMw, func(c *gin.Context) {
+			backup, err := services.Backups.Create(cfg.WorkDir)
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+				return
+			}
+			c.JSON(http.StatusCreated, backup)
+		})
+
+		api.GET("/backups/:id/download", authMw, func(c *gin.Context) {
+			id, err := parseUintParam(c, "id")
+			if err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+				return
+			}
+			backup, err := services.Backups.Get(id)
+			if err != nil {
+				c.JSON(http.StatusNotFound, gin.H{"message": err.Error()})
+				return
+			}
+			c.FileAttachment(filepath.Join(cfg.WorkDir, "backups", backup.Filename), backup.Filename)
+		})
+
+		api.GET("/search", func(c *gin.Context) {
+			keyword := c.Query("keyword")
+			if keyword == "" {
+				c.JSON(http.StatusOK, gin.H{"posts": []model.Post{}, "pages": []model.Page{}})
+				return
+			}
+
+			var posts []model.Post
+			if err := services.Posts.Search(keyword, &posts); err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+				return
+			}
+
+			var pages []model.Page
+			if err := services.Pages.Search(keyword, &pages); err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+				return
+			}
+
+			c.JSON(http.StatusOK, gin.H{"posts": posts, "pages": pages})
 		})
 
 		api.GET("/settings", func(c *gin.Context) {

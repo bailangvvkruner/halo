@@ -101,3 +101,11 @@ coverage
 storybook-static
 tsconfig.tsbuildinfo
 .tgz
+
+### Go
+*.exe
+*.test
+*.out
+tmp/
+web/node_modules/
+web/dist/
