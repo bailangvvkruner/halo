@@ -362,6 +362,92 @@ body {
   border-color: rgba(248, 113, 113, 0.35);
 }
 
+.posts-panel {
+  display: grid;
+  gap: 18px;
+}
+
+.section-toolbar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.section-toolbar h2 {
+  margin: 0 0 6px;
+}
+
+.section-subtitle {
+  margin: 0;
+  color: #94a3b8;
+}
+
+.section-toolbar button,
+.table-toolbar input {
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+}
+
+.section-toolbar button {
+  background: #2563eb;
+  color: #fff;
+  cursor: pointer;
+}
+
+.table-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.table-toolbar input {
+  min-width: 260px;
+  background: rgba(15, 23, 42, 0.9);
+  color: #e5eefc;
+}
+
+.table-count {
+  color: #94a3b8;
+  font-size: 14px;
+}
+
+.table-shell {
+  overflow: hidden;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 16px;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.admin-table th,
+.admin-table td {
+  padding: 16px;
+  text-align: left;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+}
+
+.admin-table th {
+  color: #94a3b8;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.admin-table td {
+  vertical-align: top;
+}
+
+.table-excerpt {
+  margin: 8px 0 0;
+  color: #94a3b8;
+  font-size: 13px;
+}
+
 @media (max-width: 900px) {
   .admin-layout {
     grid-template-columns: 1fr;

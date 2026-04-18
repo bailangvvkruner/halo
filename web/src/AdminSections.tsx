@@ -19,18 +19,55 @@ export function OverviewSection({ stats }: { stats: DashboardStats | null }) {
 }
 
 export function PostsSection({ posts }: { posts: Post[] }) {
+  const [keyword, setKeyword] = useState('')
+  const filtered = posts.filter((post) => {
+    if (!keyword.trim()) {
+      return true
+    }
+    const lower = keyword.toLowerCase()
+    return post.title.toLowerCase().includes(lower) || post.slug.toLowerCase().includes(lower)
+  })
+
   return (
-    <section className="panel">
-      <h2>文章管理</h2>
-      <ul className="list">
-        {posts.map((post) => (
-          <li key={post.id} className="card">
-            <h3>{post.title}</h3>
-            <p>{post.excerpt || '暂无摘要'}</p>
-            <span>{post.slug} · {post.category} · {post.tags}</span>
-          </li>
-        ))}
-      </ul>
+    <section className="panel posts-panel">
+      <div className="section-toolbar">
+        <div>
+          <h2>文章管理</h2>
+          <p className="section-subtitle">更接近原版后台的文章列表视图。</p>
+        </div>
+        <button>新建文章</button>
+      </div>
+      <div className="table-toolbar">
+        <input value={keyword} onChange={(event) => setKeyword(event.target.value)} placeholder="搜索标题或别名" />
+        <span className="table-count">共 {filtered.length} 篇</span>
+      </div>
+      <div className="table-shell">
+        <table className="admin-table">
+          <thead>
+            <tr>
+              <th>标题</th>
+              <th>别名</th>
+              <th>分类</th>
+              <th>标签</th>
+              <th>状态</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filtered.map((post) => (
+              <tr key={post.id}>
+                <td>
+                  <strong>{post.title}</strong>
+                  <p className="table-excerpt">{post.excerpt || '暂无摘要'}</p>
+                </td>
+                <td>{post.slug}</td>
+                <td>{post.category || '未分类'}</td>
+                <td>{post.tags || '无标签'}</td>
+                <td>{post.published ? '已发布' : '草稿'}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </section>
   )
 }
