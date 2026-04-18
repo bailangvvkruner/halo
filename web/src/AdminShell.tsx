@@ -44,7 +44,19 @@ export function AdminShell({ active, onNavigate, onLogout, children }: Props) {
         </nav>
         <button className="logout-button sidebar-logout" onClick={onLogout}>退出登录</button>
       </aside>
-      <main className="admin-main">{children}</main>
+      <main className="admin-main">
+        <header className="admin-topbar">
+          <div>
+            <p className="topbar-label">Console</p>
+            <h2>{items.find((item) => item.key === active)?.label ?? '控制台'}</h2>
+          </div>
+          <div className="topbar-actions">
+            <button className="topbar-button">查看站点</button>
+            <button className="topbar-button">快捷操作</button>
+          </div>
+        </header>
+        {children}
+      </main>
     </div>
   )
 }
