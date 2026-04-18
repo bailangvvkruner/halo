@@ -109,3 +109,4 @@ tsconfig.tsbuildinfo
 tmp/
 web/node_modules/
 web/dist/
+.halo-dev/
