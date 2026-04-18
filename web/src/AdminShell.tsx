@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 
-type NavKey = 'overview' | 'posts' | 'pages' | 'taxonomies' | 'comments' | 'users' | 'plugins' | 'settings' | 'register' | 'search'
+type NavKey = 'overview' | 'posts' | 'pages' | 'taxonomies' | 'comments' | 'users' | 'plugins' | 'settings' | 'register' | 'search' | 'attachments'
 
 type Props = {
   active: NavKey
@@ -19,7 +19,8 @@ const items: Array<{ key: NavKey; label: string }> = [
   { key: 'plugins', label: '插件主题' },
   { key: 'settings', label: '设置' },
   { key: 'register', label: '注册验证' },
-  { key: 'search', label: '搜索' }
+  { key: 'search', label: '搜索' },
+  { key: 'attachments', label: '附件' }
 ]
 
 export function AdminShell({ active, onNavigate, onLogout, children }: Props) {

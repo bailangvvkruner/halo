@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { Category, Comment, DashboardStats, Menu, Page, Plugin, Post, Setting, Tag, Theme, User } from './api'
+import type { Attachment, Category, Comment, DashboardStats, Menu, Page, Plugin, Post, Setting, Tag, Theme, User } from './api'
 import { AdminShell } from './AdminShell'
 import {
   CommentsSection,
@@ -11,6 +11,7 @@ import {
   SearchSection,
   SettingsSection,
   TaxonomiesSection,
+  AttachmentsSection,
   UsersSection
 } from './AdminSections'
 
@@ -19,6 +20,7 @@ type Props = {
   themes: Theme[]
   plugins: Plugin[]
   users: User[]
+  attachments: Attachment[]
   pages: Page[]
   categories: Category[]
   tags: Tag[]
@@ -31,12 +33,13 @@ type Props = {
 }
 
 export function Dashboard(props: Props) {
-  const [active, setActive] = useState<'overview' | 'posts' | 'pages' | 'taxonomies' | 'comments' | 'users' | 'plugins' | 'settings' | 'register' | 'search'>('overview')
+  const [active, setActive] = useState<'overview' | 'posts' | 'pages' | 'taxonomies' | 'comments' | 'users' | 'plugins' | 'settings' | 'register' | 'search' | 'attachments'>('overview')
   const {
     posts,
     themes,
     plugins,
     users,
+    attachments,
     pages,
     categories,
     tags,
@@ -61,6 +64,7 @@ export function Dashboard(props: Props) {
       {active === 'settings' ? <SettingsSection settings={settings} /> : null}
       {active === 'register' ? <RegistrationSection /> : null}
       {active === 'search' ? <SearchSection /> : null}
+      {active === 'attachments' ? <AttachmentsSection attachments={attachments} /> : null}
     </AdminShell>
   )
 }

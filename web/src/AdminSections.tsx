@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { api, type Category, type Comment, type DashboardStats, type Menu, type Page, type Plugin, type Post, type RegistrationPayload, type Reply, type SearchResult, type Setting, type Tag, type Theme, type User } from './api'
+import { api, type Attachment, type Category, type Comment, type DashboardStats, type Menu, type Page, type Plugin, type PluginScanItem, type Post, type RegistrationPayload, type Reply, type SearchResult, type Setting, type Tag, type Theme, type ThemeScanItem, type User } from './api'
 
 export function OverviewSection({ stats }: { stats: DashboardStats | null }) {
   return (
@@ -130,16 +130,59 @@ export function UsersSection({ users }: { users: User[] }) {
 }
 
 export function PluginsSection({ plugins, themes }: { plugins: Plugin[]; themes: Theme[] }) {
+  const [scannedThemes, setScannedThemes] = useState<ThemeScanItem[]>([])
+  const [scannedPlugins, setScannedPlugins] = useState<PluginScanItem[]>([])
+
+  const scanThemes = async () => {
+    const response = await api.get<ThemeScanItem[]>('/themes/scan')
+    setScannedThemes(response.data)
+  }
+
+  const scanPlugins = async () => {
+    const response = await api.get<PluginScanItem[]>('/plugins/scan')
+    setScannedPlugins(response.data)
+  }
+
   return (
     <section className="grid-panels">
-      <SimpleSection title="插件" items={plugins.map((item) => `${item.displayName} · ${item.enabled ? '已启用' : '未启用'}`)} />
-      <SimpleSection title="主题" items={themes.map((item) => `${item.displayName} · ${item.activated ? '已启用' : '未启用'}`)} />
+      <section className="panel compact-panel">
+        <h2>插件</h2>
+        <ul className="mini-list">
+          {plugins.map((item) => (
+            <li key={item.id}>{item.displayName} · {item.enabled ? '已启用' : '未启用'}</li>
+          ))}
+        </ul>
+        <div className="inline-form">
+          <button onClick={scanPlugins}>扫描插件目录</button>
+          {scannedPlugins.map((item) => (
+            <p key={item.name}>{item.displayName} · {item.path}</p>
+          ))}
+        </div>
+      </section>
+      <section className="panel compact-panel">
+        <h2>主题</h2>
+        <ul className="mini-list">
+          {themes.map((item) => (
+            <li key={item.id}>{item.displayName} · {item.activated ? '已启用' : '未启用'}</li>
+          ))}
+        </ul>
+        <div className="inline-form">
+          <button onClick={scanThemes}>扫描主题目录</button>
+          {scannedThemes.map((item) => (
+            <p key={item.name}>{item.displayName}</p>
+          ))}
+        </div>
+      </section>
     </section>
   )
 }
 
 export function SettingsSection({ settings }: { settings: Setting[] }) {
   return <SimpleSection title="系统设置" items={settings.map((item) => `${item.key} · ${item.value}`)} />
+}
+
+export function AttachmentsSection({ attachments }: { attachments: Attachment[] }) {
+  return <SimpleSection title="附件" items={attachments.map((item) => `${item.filename} · ${item.url}`)} />
 }
 
 export function RegistrationSection() {

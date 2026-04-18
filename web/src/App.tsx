@@ -5,6 +5,7 @@ import {
   type Comment,
   type DashboardStats,
   type Health,
+  type Attachment,
   type Menu,
   type Page,
   type Plugin,
@@ -25,6 +26,7 @@ export function App() {
   const [themes, setThemes] = useState<Theme[]>([])
   const [plugins, setPlugins] = useState<Plugin[]>([])
   const [users, setUsers] = useState<User[]>([])
+  const [attachments, setAttachments] = useState<Attachment[]>([])
   const [pages, setPages] = useState<Page[]>([])
   const [categories, setCategories] = useState<Category[]>([])
   const [tags, setTags] = useState<Tag[]>([])
@@ -62,6 +64,7 @@ export function App() {
     api.get<Theme[]>('/themes').then((response) => setThemes(response.data)).catch(handleRequestError)
     api.get<Plugin[]>('/plugins').then((response) => setPlugins(response.data)).catch(handleRequestError)
     api.get<User[]>('/users').then((response) => setUsers(response.data)).catch(handleRequestError)
+    api.get<Attachment[]>('/attachments').then((response) => setAttachments(response.data)).catch(handleRequestError)
     api.get<Page[]>('/pages').then((response) => setPages(response.data)).catch(handleRequestError)
     api.get<Category[]>('/categories').then((response) => setCategories(response.data)).catch(handleRequestError)
     api.get<Tag[]>('/tags').then((response) => setTags(response.data)).catch(handleRequestError)
@@ -104,6 +107,7 @@ export function App() {
       themes={themes}
       plugins={plugins}
       users={users}
+      attachments={attachments}
       pages={pages}
       categories={categories}
       tags={tags}

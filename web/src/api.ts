@@ -99,10 +99,22 @@ export type Theme = {
   activated: boolean
 }
 
+export type ThemeScanItem = {
+  name: string
+  displayName: string
+}
+
+export type PluginScanItem = {
+  name: string
+  displayName: string
+  path: string
+}
+
 export type Plugin = {
 	 id: number
 	 name: string
 	 displayName: string
+	 path?: string
 	 enabled: boolean
 }
 
@@ -121,4 +133,12 @@ export type User = {
 export type LoginResponse = {
   token: string
   user: User
+}
+
+export type Attachment = {
+  id: number
+  filename: string
+  path: string
+  url: string
+  size: number
 }

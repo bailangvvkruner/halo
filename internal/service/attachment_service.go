@@ -1,6 +1,9 @@
 package service
 
 import (
+	"path/filepath"
+	"strings"
+
 	"halo/internal/model"
 
 	"gorm.io/gorm"
@@ -33,4 +36,8 @@ func (s *AttachmentService) Get(id uint) (*model.Attachment, error) {
 
 func (s *AttachmentService) Delete(id uint) error {
 	return s.db.Delete(&model.Attachment{}, id).Error
+}
+
+func (s *AttachmentService) NormalizeURL(attachment *model.Attachment) {
+	attachment.URL = "/attachments/" + strings.ReplaceAll(filepath.Base(attachment.Path), "\\", "/")
 }

@@ -145,6 +145,7 @@ type Plugin struct {
 	ID          uint      `gorm:"primaryKey" json:"id"`
 	Name        string    `gorm:"uniqueIndex;size:128" json:"name"`
 	DisplayName string    `gorm:"size:255" json:"displayName"`
+	Path        string    `gorm:"size:512" json:"path"`
 	Enabled     bool      `json:"enabled"`
 	CreatedAt   time.Time `json:"createdAt"`
 	UpdatedAt   time.Time `json:"updatedAt"`
@@ -154,6 +155,7 @@ type Attachment struct {
 	ID        uint      `gorm:"primaryKey" json:"id"`
 	Filename  string    `gorm:"size:255" json:"filename"`
 	Path      string    `gorm:"size:512" json:"path"`
+	URL       string    `gorm:"size:512" json:"url"`
 	Size      int64     `json:"size"`
 	CreatedAt time.Time `json:"createdAt"`
 	UpdatedAt time.Time `json:"updatedAt"`
