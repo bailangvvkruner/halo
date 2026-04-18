@@ -77,7 +77,7 @@ func registerRoutes(g *gin.Engine, cfg config.Config, services *service.Containe
 				c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 				return
 			}
-			c.JSON(http.StatusCreated, gin.H{"message": "setup completed"})
+			c.Status(http.StatusNoContent)
 		})
 
 		api.POST("/login", func(c *gin.Context) {

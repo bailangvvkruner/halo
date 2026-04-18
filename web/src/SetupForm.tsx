@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { api } from './api'
 
 type Props = {
@@ -17,6 +17,14 @@ export function SetupForm({ onSuccess }: Props) {
   })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    const externalUrl = `${window.location.protocol}//${window.location.host}`
+    setForm((current) => ({
+      ...current,
+      baseURL: externalUrl
+    }))
+  }, [])
 
   const updateField = (key: keyof typeof form, value: string) => {
     setForm((current) => ({ ...current, [key]: value }))
