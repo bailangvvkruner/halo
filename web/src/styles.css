@@ -17,6 +17,82 @@ body {
   padding: 48px 24px 80px;
 }
 
+.setup-shell {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 20px;
+}
+
+.setup-card {
+  width: 100%;
+  max-width: 760px;
+  background: #fff;
+  color: #111827;
+  border-radius: 18px;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.25);
+  padding: 28px 28px 32px;
+}
+
+.setup-header h1 {
+  margin: 0 0 20px;
+  font-size: 28px;
+  color: #0f172a;
+}
+
+.setup-warning {
+  margin-bottom: 24px;
+  padding: 16px 18px;
+  border-radius: 12px;
+  background: #fff7ed;
+  border: 1px solid #fdba74;
+  color: #9a3412;
+}
+
+.setup-warning strong {
+  display: block;
+  margin-bottom: 8px;
+}
+
+.setup-warning p {
+  margin: 0;
+  line-height: 1.7;
+}
+
+.setup-form {
+  display: grid;
+  gap: 16px;
+}
+
+.setup-form label {
+  display: grid;
+  gap: 8px;
+}
+
+.setup-form span {
+  color: #374151;
+  font-size: 14px;
+}
+
+.setup-form input {
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid #d1d5db;
+  background: #fff;
+  color: #111827;
+}
+
+.setup-submit {
+  margin-top: 8px;
+  padding: 12px 18px;
+  border: none;
+  border-radius: 10px;
+  background: #2563eb;
+  color: #fff;
+  cursor: pointer;
+}
+
 .login-panel {
   max-width: 420px;
   margin: 80px auto;

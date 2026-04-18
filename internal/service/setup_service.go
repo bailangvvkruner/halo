@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"strings"
 
 	"halo/internal/model"
 
@@ -20,6 +21,7 @@ type SetupPayload struct {
 	Username    string `json:"username"`
 	Email       string `json:"email"`
 	Password    string `json:"password"`
+	ConfirmPass string `json:"confirmPassword"`
 	Language    string `json:"language"`
 }
 
@@ -42,6 +44,14 @@ func (s *SetupService) Setup(payload SetupPayload) error {
 	}
 	if initialized {
 		return errors.New("system already initialized")
+	}
+
+	if strings.TrimSpace(payload.SiteTitle) == "" || strings.TrimSpace(payload.BaseURL) == "" || strings.TrimSpace(payload.Username) == "" || strings.TrimSpace(payload.Email) == "" || strings.TrimSpace(payload.Password) == "" {
+		return errors.New("missing required fields")
+	}
+
+	if payload.Password != payload.ConfirmPass {
+		return errors.New("passwords do not match")
 	}
 
 	user := &model.User{
