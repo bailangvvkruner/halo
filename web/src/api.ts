@@ -31,6 +31,7 @@ export type Post = {
   id: number
   title: string
   slug: string
+  content: string
   excerpt: string
   template: string
   category: string
@@ -42,6 +43,7 @@ export type Page = {
   id: number
   title: string
   slug: string
+  content: string
   published: boolean
 }
 
