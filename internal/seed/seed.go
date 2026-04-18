@@ -7,6 +7,14 @@ import (
 )
 
 func Bootstrap(db *gorm.DB) error {
+	initialized, err := isInitialized(db)
+	if err != nil {
+		return err
+	}
+	if !initialized {
+		return nil
+	}
+
 	if err := ensureTheme(db); err != nil {
 		return err
 	}
@@ -35,6 +43,14 @@ func Bootstrap(db *gorm.DB) error {
 		return err
 	}
 	return nil
+}
+
+func isInitialized(db *gorm.DB) (bool, error) {
+	var count int64
+	if err := db.Model(&model.User{}).Count(&count).Error; err != nil {
+		return false, err
+	}
+	return count > 0, nil
 }
 
 func ensureTheme(db *gorm.DB) error {

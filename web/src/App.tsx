@@ -17,6 +17,7 @@ import {
 import { clearToken, isLoggedIn } from './auth'
 import { Dashboard } from './Dashboard'
 import { LoginForm } from './LoginForm'
+import { SetupForm } from './SetupForm'
 
 export function App() {
   const [health, setHealth] = useState<Health | null>(null)
@@ -32,9 +33,16 @@ export function App() {
   const [settings, setSettings] = useState<Setting[]>([])
   const [stats, setStats] = useState<DashboardStats | null>(null)
   const [authenticated, setAuthenticated] = useState(isLoggedIn())
+  const [initialized, setInitialized] = useState<boolean | null>(null)
 
   useEffect(() => {
-    if (!authenticated) {
+    api.get<{ initialized: boolean }>('/setup/status').then((response) => {
+      setInitialized(response.data.initialized)
+    })
+  }, [])
+
+  useEffect(() => {
+    if (!authenticated || !initialized) {
       return
     }
 
@@ -50,7 +58,15 @@ export function App() {
     api.get<Comment[]>('/comments').then((response) => setComments(response.data))
     api.get<Setting[]>('/settings').then((response) => setSettings(response.data))
     api.get<DashboardStats>('/dashboard/stats').then((response) => setStats(response.data))
-  }, [authenticated])
+  }, [authenticated, initialized])
+
+  if (initialized === null) {
+    return <section className="panel login-panel"><p>加载初始化状态中...</p></section>
+  }
+
+  if (!initialized) {
+    return <SetupForm onSuccess={() => setInitialized(true)} />
+  }
 
   if (!authenticated) {
     return <LoginForm onSuccess={() => setAuthenticated(true)} />

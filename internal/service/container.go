@@ -21,6 +21,7 @@ type Container struct {
 	Settings    *SettingService
 	Auth        *AuthService
 	Dashboard   *DashboardService
+	Setup       *SetupService
 }
 
 func NewContainer(db *gorm.DB, cfg config.Config) (*Container, error) {
@@ -38,10 +39,7 @@ func NewContainer(db *gorm.DB, cfg config.Config) (*Container, error) {
 	settings := NewSettingService(db)
 	auth := NewAuthService(users, cfg)
 	dashboard := NewDashboardService(db)
-
-	if err := users.EnsureAdmin(); err != nil {
-		return nil, err
-	}
+	setup := NewSetupService(db, users, settings)
 
 	return &Container{
 		Users:       users,
@@ -58,5 +56,6 @@ func NewContainer(db *gorm.DB, cfg config.Config) (*Container, error) {
 		Settings:    settings,
 		Auth:        auth,
 		Dashboard:   dashboard,
+		Setup:       setup,
 	}, nil
 }

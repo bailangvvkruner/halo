@@ -55,6 +55,12 @@ body {
   margin: 0;
 }
 
+.warning-text {
+  color: #fbbf24;
+  margin: 0 0 16px;
+  line-height: 1.6;
+}
+
 .hero,
 .panel {
   background: rgba(17, 25, 40, 0.86);

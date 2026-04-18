@@ -41,12 +41,43 @@ func registerRoutes(g *gin.Engine, cfg config.Config, services *service.Containe
 		})
 
 		api.GET("/dashboard/stats", func(c *gin.Context) {
+			initialized, err := services.Setup.IsInitialized()
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+				return
+			}
+			if !initialized {
+				c.JSON(http.StatusOK, gin.H{"initialized": false})
+				return
+			}
 			stats, err := services.Dashboard.Stats(services)
 			if err != nil {
 				c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
 				return
 			}
 			c.JSON(http.StatusOK, stats)
+		})
+
+		api.GET("/setup/status", func(c *gin.Context) {
+			initialized, err := services.Setup.IsInitialized()
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+				return
+			}
+			c.JSON(http.StatusOK, gin.H{"initialized": initialized})
+		})
+
+		api.POST("/setup", func(c *gin.Context) {
+			var payload service.SetupPayload
+			if err := c.ShouldBindJSON(&payload); err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+				return
+			}
+			if err := services.Setup.Setup(payload); err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+				return
+			}
+			c.JSON(http.StatusCreated, gin.H{"message": "setup completed"})
 		})
 
 		api.POST("/login", func(c *gin.Context) {
