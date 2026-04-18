@@ -9,6 +9,7 @@ import {
   type Page,
   type Plugin,
   type Post,
+  type Setting,
   type Tag,
   type Theme,
   type User
@@ -25,6 +26,7 @@ export function App() {
   const [tags, setTags] = useState<Tag[]>([])
   const [menus, setMenus] = useState<Menu[]>([])
   const [comments, setComments] = useState<Comment[]>([])
+  const [settings, setSettings] = useState<Setting[]>([])
   const [stats, setStats] = useState<DashboardStats | null>(null)
 
   useEffect(() => {
@@ -38,6 +40,7 @@ export function App() {
     api.get<Tag[]>('/tags').then((response) => setTags(response.data))
     api.get<Menu[]>('/menus').then((response) => setMenus(response.data))
     api.get<Comment[]>('/comments').then((response) => setComments(response.data))
+    api.get<Setting[]>('/settings').then((response) => setSettings(response.data))
     api.get<DashboardStats>('/dashboard/stats').then((response) => setStats(response.data))
   }, [])
 
@@ -155,6 +158,15 @@ export function App() {
           <ul className="mini-list">
             {comments.map((comment) => (
               <li key={comment.id}>{comment.author} · {comment.content}</li>
+            ))}
+          </ul>
+        </section>
+
+        <section className="panel compact-panel full-span">
+          <h2>设置</h2>
+          <ul className="mini-list">
+            {settings.map((setting) => (
+              <li key={setting.id}>{setting.key} · {setting.value}</li>
             ))}
           </ul>
         </section>

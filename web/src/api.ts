@@ -77,6 +77,12 @@ export type Plugin = {
 	 enabled: boolean
 }
 
+export type Setting = {
+  id: number
+  key: string
+  value: string
+}
+
 export type User = {
 	 id: number
 	 username: string

@@ -42,3 +42,23 @@ func (s *UserService) Authenticate(username, password string) (*model.User, erro
 	}
 	return &user, nil
 }
+
+func (s *UserService) Get(id uint) (*model.User, error) {
+	var user model.User
+	if err := s.db.First(&user, id).Error; err != nil {
+		return nil, err
+	}
+	return &user, nil
+}
+
+func (s *UserService) Create(user *model.User) error {
+	return s.db.Create(user).Error
+}
+
+func (s *UserService) Update(id uint, user *model.User) error {
+	return s.db.Model(&model.User{}).Where("id = ?", id).Updates(user).Error
+}
+
+func (s *UserService) Delete(id uint) error {
+	return s.db.Delete(&model.User{}, id).Error
+}
