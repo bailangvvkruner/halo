@@ -25,6 +25,7 @@ type Container struct {
 	Replies      *ReplyService
 	Registration *RegistrationService
 	Roles        *RoleService
+	ThemeRender  *ThemeRenderService
 }
 
 func NewContainer(db *gorm.DB, cfg config.Config) (*Container, error) {
@@ -46,7 +47,11 @@ func NewContainer(db *gorm.DB, cfg config.Config) (*Container, error) {
 	replies := NewReplyService(db)
 	registration := NewRegistrationService(db)
 	roles := NewRoleService(db)
+	themeRender := NewThemeRenderService(cfg, themes)
 	if err := roles.EnsureDefaults(); err != nil {
+		return nil, err
+	}
+	if err := themeRender.EnsureDefaultThemeFiles(); err != nil {
 		return nil, err
 	}
 
@@ -69,5 +74,6 @@ func NewContainer(db *gorm.DB, cfg config.Config) (*Container, error) {
 		Replies:      replies,
 		Registration: registration,
 		Roles:        roles,
+		ThemeRender:  themeRender,
 	}, nil
 }
