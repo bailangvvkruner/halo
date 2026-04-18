@@ -342,6 +342,22 @@ body {
   text-align: left;
 }
 
+.reply-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.reply-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.danger-button {
+  background: #b91c1c !important;
+}
+
 @media (max-width: 900px) {
   .admin-layout {
     grid-template-columns: 1fr;
