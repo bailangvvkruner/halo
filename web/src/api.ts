@@ -87,6 +87,11 @@ export type RegistrationPayload = {
   password: string
 }
 
+export type SearchResult = {
+  posts: Post[]
+  pages: Page[]
+}
+
 export type Theme = {
   id: number
   name: string

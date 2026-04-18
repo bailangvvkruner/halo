@@ -24,6 +24,7 @@ func New(cfg config.Config, services *service.Container) *Server {
 	g.Use(cors.Default())
 
 	registerRoutes(g, cfg, services)
+	registerSiteRoutes(g, services)
 
 	return &Server{engine: g}
 }

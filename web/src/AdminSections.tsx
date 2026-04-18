@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { api, type Category, type Comment, type DashboardStats, type Menu, type Page, type Plugin, type Post, type RegistrationPayload, type Reply, type Setting, type Tag, type Theme, type User } from './api'
+import { api, type Category, type Comment, type DashboardStats, type Menu, type Page, type Plugin, type Post, type RegistrationPayload, type Reply, type SearchResult, type Setting, type Tag, type Theme, type User } from './api'
 
 export function OverviewSection({ stats }: { stats: DashboardStats | null }) {
   return (
@@ -174,6 +174,30 @@ export function RegistrationSection() {
         <input value={verifyToken} onChange={(event) => setVerifyToken(event.target.value)} placeholder="验证 token" />
         <button onClick={verify}>执行验证</button>
         {verifyResult ? <p>{verifyResult}</p> : null}
+      </div>
+    </section>
+  )
+}
+
+export function SearchSection() {
+  const [keyword, setKeyword] = useState('')
+  const [result, setResult] = useState<SearchResult>({ posts: [], pages: [] })
+
+  const search = async () => {
+    const response = await api.get<SearchResult>(`/search?keyword=${encodeURIComponent(keyword)}`)
+    setResult(response.data)
+  }
+
+  return (
+    <section className="panel compact-panel">
+      <h2>搜索</h2>
+      <div className="inline-form">
+        <input value={keyword} onChange={(event) => setKeyword(event.target.value)} placeholder="输入关键词" />
+        <button onClick={search}>执行搜索</button>
+      </div>
+      <div className="grid-panels dashboard-grid">
+        <SimpleSection title="文章结果" items={result.posts.map((item) => `${item.title} · ${item.slug}`)} />
+        <SimpleSection title="页面结果" items={result.pages.map((item) => `${item.title} · ${item.slug}`)} />
       </div>
     </section>
   )
