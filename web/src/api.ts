@@ -72,6 +72,21 @@ export type Comment = {
   content: string
 }
 
+export type Reply = {
+  id: number
+  commentId: number
+  author: string
+  email: string
+  content: string
+  status: string
+}
+
+export type RegistrationPayload = {
+  username: string
+  email: string
+  password: string
+}
+
 export type Theme = {
   id: number
   name: string

@@ -7,6 +7,7 @@ import {
   PagesSection,
   PluginsSection,
   PostsSection,
+  RegistrationSection,
   SettingsSection,
   TaxonomiesSection,
   UsersSection
@@ -28,7 +29,7 @@ type Props = {
 }
 
 export function Dashboard(props: Props) {
-  const [active, setActive] = useState<'overview' | 'posts' | 'pages' | 'taxonomies' | 'comments' | 'users' | 'plugins' | 'settings'>('overview')
+  const [active, setActive] = useState<'overview' | 'posts' | 'pages' | 'taxonomies' | 'comments' | 'users' | 'plugins' | 'settings' | 'register'>('overview')
   const {
     posts,
     themes,
@@ -54,6 +55,7 @@ export function Dashboard(props: Props) {
       {active === 'users' ? <UsersSection users={users} /> : null}
       {active === 'plugins' ? <PluginsSection plugins={plugins} themes={themes} /> : null}
       {active === 'settings' ? <SettingsSection settings={settings} /> : null}
+      {active === 'register' ? <RegistrationSection /> : null}
     </AdminShell>
   )
 }

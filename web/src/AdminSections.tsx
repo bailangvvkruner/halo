@@ -1,4 +1,5 @@
-import type { Category, Comment, DashboardStats, Menu, Page, Plugin, Post, Setting, Tag, Theme, User } from './api'
+import { useState } from 'react'
+import { api, type Category, type Comment, type DashboardStats, type Menu, type Page, type Plugin, type Post, type RegistrationPayload, type Reply, type Setting, type Tag, type Theme, type User } from './api'
 
 export function OverviewSection({ stats }: { stats: DashboardStats | null }) {
   return (
@@ -50,7 +51,53 @@ export function TaxonomiesSection(props: { categories: Category[]; tags: Tag[]; 
 }
 
 export function CommentsSection({ comments }: { comments: Comment[] }) {
-  return <SimpleSection title="评论管理" items={comments.map((item) => `${item.author} · ${item.content}`)} />
+  const [selectedCommentId, setSelectedCommentId] = useState<number | null>(comments[0]?.id ?? null)
+  const [replies, setReplies] = useState<Reply[]>([])
+  const [replyForm, setReplyForm] = useState({ author: '管理员', email: 'admin@example.com', content: '' })
+
+  const loadReplies = async (commentId: number) => {
+    setSelectedCommentId(commentId)
+    const response = await api.get<Reply[]>(`/comments/${commentId}/replies`)
+    setReplies(response.data)
+  }
+
+  const createReply = async () => {
+    if (!selectedCommentId || !replyForm.content.trim()) {
+      return
+    }
+    await api.post(`/comments/${selectedCommentId}/replies`, replyForm)
+    setReplyForm((current) => ({ ...current, content: '' }))
+    await loadReplies(selectedCommentId)
+  }
+
+  return (
+    <section className="grid-panels dashboard-grid">
+      <section className="panel compact-panel">
+        <h2>评论管理</h2>
+        <ul className="mini-list">
+          {comments.map((item) => (
+            <li key={item.id}>
+              <button className="link-button" onClick={() => loadReplies(item.id)}>{item.author} · {item.content}</button>
+            </li>
+          ))}
+        </ul>
+      </section>
+      <section className="panel compact-panel">
+        <h2>回复</h2>
+        <ul className="mini-list">
+          {replies.map((reply) => (
+            <li key={reply.id}>{reply.author} · {reply.content} · {reply.status}</li>
+          ))}
+        </ul>
+        <div className="inline-form">
+          <input value={replyForm.author} onChange={(event) => setReplyForm((current) => ({ ...current, author: event.target.value }))} placeholder="作者" />
+          <input value={replyForm.email} onChange={(event) => setReplyForm((current) => ({ ...current, email: event.target.value }))} placeholder="邮箱" />
+          <textarea value={replyForm.content} onChange={(event) => setReplyForm((current) => ({ ...current, content: event.target.value }))} placeholder="回复内容" />
+          <button onClick={createReply}>创建回复</button>
+        </div>
+      </section>
+    </section>
+  )
 }
 
 export function UsersSection({ users }: { users: User[] }) {
@@ -68,6 +115,29 @@ export function PluginsSection({ plugins, themes }: { plugins: Plugin[]; themes:
 
 export function SettingsSection({ settings }: { settings: Setting[] }) {
   return <SimpleSection title="系统设置" items={settings.map((item) => `${item.key} · ${item.value}`)} />
+}
+
+export function RegistrationSection() {
+  const [form, setForm] = useState<RegistrationPayload>({ username: '', email: '', password: '' })
+  const [result, setResult] = useState('')
+
+  const submit = async () => {
+    const response = await api.post<{ token: string; message: string }>('/register', form)
+    setResult(`注册成功，验证 token：${response.data.token}`)
+  }
+
+  return (
+    <section className="panel compact-panel">
+      <h2>注册验证</h2>
+      <div className="inline-form">
+        <input value={form.username} onChange={(event) => setForm((current) => ({ ...current, username: event.target.value }))} placeholder="用户名" />
+        <input value={form.email} onChange={(event) => setForm((current) => ({ ...current, email: event.target.value }))} placeholder="邮箱" />
+        <input type="password" value={form.password} onChange={(event) => setForm((current) => ({ ...current, password: event.target.value }))} placeholder="密码" />
+        <button onClick={submit}>提交注册</button>
+        {result ? <p>{result}</p> : null}
+      </div>
+    </section>
+  )
 }
 
 function SimpleSection({ title, items, fullSpan = false }: { title: string; items: string[]; fullSpan?: boolean }) {
