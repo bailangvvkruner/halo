@@ -358,6 +358,10 @@ body {
   background: #b91c1c !important;
 }
 
+.error-panel {
+  border-color: rgba(248, 113, 113, 0.35);
+}
+
 @media (max-width: 900px) {
   .admin-layout {
     grid-template-columns: 1fr;

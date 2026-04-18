@@ -407,7 +407,7 @@ func registerRoutes(g *gin.Engine, cfg config.Config, services *service.Containe
 			c.JSON(http.StatusOK, item)
 		})
 
-		api.POST("/categories", authMw, func(c *gin.Context) {
+		api.POST("/categories", authMw, permissionMw, func(c *gin.Context) {
 			var payload model.Category
 			if err := c.ShouldBindJSON(&payload); err != nil {
 				c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
@@ -420,7 +420,7 @@ func registerRoutes(g *gin.Engine, cfg config.Config, services *service.Containe
 			c.JSON(http.StatusCreated, payload)
 		})
 
-		api.PUT("/categories/:id", authMw, func(c *gin.Context) {
+		api.PUT("/categories/:id", authMw, permissionMw, func(c *gin.Context) {
 			id, err := parseUintParam(c, "id")
 			if err != nil {
 				c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
@@ -438,7 +438,7 @@ func registerRoutes(g *gin.Engine, cfg config.Config, services *service.Containe
 			c.JSON(http.StatusOK, payload)
 		})
 
-		api.DELETE("/categories/:id", authMw, func(c *gin.Context) {
+		api.DELETE("/categories/:id", authMw, permissionMw, func(c *gin.Context) {
 			id, err := parseUintParam(c, "id")
 			if err != nil {
 				c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
@@ -474,7 +474,7 @@ func registerRoutes(g *gin.Engine, cfg config.Config, services *service.Containe
 			c.JSON(http.StatusOK, item)
 		})
 
-		api.POST("/tags", authMw, func(c *gin.Context) {
+		api.POST("/tags", authMw, permissionMw, func(c *gin.Context) {
 			var payload model.Tag
 			if err := c.ShouldBindJSON(&payload); err != nil {
 				c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
@@ -487,7 +487,7 @@ func registerRoutes(g *gin.Engine, cfg config.Config, services *service.Containe
 			c.JSON(http.StatusCreated, payload)
 		})
 
-		api.PUT("/tags/:id", authMw, func(c *gin.Context) {
+		api.PUT("/tags/:id", authMw, permissionMw, func(c *gin.Context) {
 			id, err := parseUintParam(c, "id")
 			if err != nil {
 				c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
@@ -505,7 +505,7 @@ func registerRoutes(g *gin.Engine, cfg config.Config, services *service.Containe
 			c.JSON(http.StatusOK, payload)
 		})
 
-		api.DELETE("/tags/:id", authMw, func(c *gin.Context) {
+		api.DELETE("/tags/:id", authMw, permissionMw, func(c *gin.Context) {
 			id, err := parseUintParam(c, "id")
 			if err != nil {
 				c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
@@ -541,7 +541,7 @@ func registerRoutes(g *gin.Engine, cfg config.Config, services *service.Containe
 			c.JSON(http.StatusOK, item)
 		})
 
-		api.POST("/menus", authMw, func(c *gin.Context) {
+		api.POST("/menus", authMw, permissionMw, func(c *gin.Context) {
 			var payload model.Menu
 			if err := c.ShouldBindJSON(&payload); err != nil {
 				c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
@@ -554,7 +554,7 @@ func registerRoutes(g *gin.Engine, cfg config.Config, services *service.Containe
 			c.JSON(http.StatusCreated, payload)
 		})
 
-		api.PUT("/menus/:id", authMw, func(c *gin.Context) {
+		api.PUT("/menus/:id", authMw, permissionMw, func(c *gin.Context) {
 			id, err := parseUintParam(c, "id")
 			if err != nil {
 				c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
@@ -572,7 +572,7 @@ func registerRoutes(g *gin.Engine, cfg config.Config, services *service.Containe
 			c.JSON(http.StatusOK, payload)
 		})
 
-		api.DELETE("/menus/:id", authMw, func(c *gin.Context) {
+		api.DELETE("/menus/:id", authMw, permissionMw, func(c *gin.Context) {
 			id, err := parseUintParam(c, "id")
 			if err != nil {
 				c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
@@ -617,7 +617,7 @@ func registerRoutes(g *gin.Engine, cfg config.Config, services *service.Containe
 			c.JSON(http.StatusOK, item)
 		})
 
-		api.POST("/plugins/:id/enable", authMw, func(c *gin.Context) {
+		api.POST("/plugins/:id/enable", authMw, permissionMw, func(c *gin.Context) {
 			id, err := parseUintParam(c, "id")
 			if err != nil {
 				c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
@@ -630,7 +630,7 @@ func registerRoutes(g *gin.Engine, cfg config.Config, services *service.Containe
 			c.JSON(http.StatusOK, gin.H{"message": "plugin enabled"})
 		})
 
-		api.POST("/plugins/:id/disable", authMw, func(c *gin.Context) {
+		api.POST("/plugins/:id/disable", authMw, permissionMw, func(c *gin.Context) {
 			id, err := parseUintParam(c, "id")
 			if err != nil {
 				c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
@@ -652,7 +652,7 @@ func registerRoutes(g *gin.Engine, cfg config.Config, services *service.Containe
 			c.JSON(http.StatusOK, items)
 		})
 
-		api.POST("/attachments/upload", authMw, func(c *gin.Context) {
+		api.POST("/attachments/upload", authMw, permissionMw, func(c *gin.Context) {
 			file, err := c.FormFile("file")
 			if err != nil {
 				c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
@@ -693,7 +693,7 @@ func registerRoutes(g *gin.Engine, cfg config.Config, services *service.Containe
 			c.JSON(http.StatusOK, items)
 		})
 
-		api.POST("/backups", authMw, func(c *gin.Context) {
+		api.POST("/backups", authMw, permissionMw, func(c *gin.Context) {
 			backup, err := services.Backups.Create(cfg.WorkDir)
 			if err != nil {
 				c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
@@ -702,7 +702,7 @@ func registerRoutes(g *gin.Engine, cfg config.Config, services *service.Containe
 			c.JSON(http.StatusCreated, backup)
 		})
 
-		api.GET("/backups/:id/download", authMw, func(c *gin.Context) {
+		api.GET("/backups/:id/download", authMw, permissionMw, func(c *gin.Context) {
 			id, err := parseUintParam(c, "id")
 			if err != nil {
 				c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
@@ -761,7 +761,7 @@ func registerRoutes(g *gin.Engine, cfg config.Config, services *service.Containe
 			c.JSON(http.StatusOK, item)
 		})
 
-		api.PUT("/settings/:id", authMw, func(c *gin.Context) {
+		api.PUT("/settings/:id", authMw, permissionMw, func(c *gin.Context) {
 			id, err := parseUintParam(c, "id")
 			if err != nil {
 				c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
@@ -802,7 +802,7 @@ func registerRoutes(g *gin.Engine, cfg config.Config, services *service.Containe
 			c.JSON(http.StatusOK, item)
 		})
 
-		api.POST("/users", authMw, func(c *gin.Context) {
+		api.POST("/users", authMw, permissionMw, func(c *gin.Context) {
 			var payload model.User
 			if err := c.ShouldBindJSON(&payload); err != nil {
 				c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
@@ -815,7 +815,7 @@ func registerRoutes(g *gin.Engine, cfg config.Config, services *service.Containe
 			c.JSON(http.StatusCreated, payload)
 		})
 
-		api.PUT("/users/:id", authMw, func(c *gin.Context) {
+		api.PUT("/users/:id", authMw, permissionMw, func(c *gin.Context) {
 			id, err := parseUintParam(c, "id")
 			if err != nil {
 				c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
@@ -833,7 +833,7 @@ func registerRoutes(g *gin.Engine, cfg config.Config, services *service.Containe
 			c.JSON(http.StatusOK, payload)
 		})
 
-		api.DELETE("/users/:id", authMw, func(c *gin.Context) {
+		api.DELETE("/users/:id", authMw, permissionMw, func(c *gin.Context) {
 			id, err := parseUintParam(c, "id")
 			if err != nil {
 				c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})

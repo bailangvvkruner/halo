@@ -25,6 +25,7 @@ type Props = {
   comments: Comment[]
   settings: Setting[]
   stats: DashboardStats | null
+  requestError: string
   onLogout: () => void
 }
 
@@ -42,11 +43,13 @@ export function Dashboard(props: Props) {
     comments,
     settings,
     stats,
+    requestError,
     onLogout
   } = props
 
   return (
     <AdminShell active={active} onNavigate={setActive} onLogout={onLogout}>
+      {requestError ? <section className="panel compact-panel error-panel"><p>{requestError}</p></section> : null}
       {active === 'overview' ? <OverviewSection stats={stats} /> : null}
       {active === 'posts' ? <PostsSection posts={posts} /> : null}
       {active === 'pages' ? <PagesSection pages={pages} /> : null}

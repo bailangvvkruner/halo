@@ -34,6 +34,7 @@ export function App() {
   const [stats, setStats] = useState<DashboardStats | null>(null)
   const [authenticated, setAuthenticated] = useState(isLoggedIn())
   const [initialized, setInitialized] = useState<boolean | null>(null)
+  const [requestError, setRequestError] = useState('')
 
   useEffect(() => {
     api.get<{ initialized: boolean }>('/setup/status').then((response) => {
@@ -55,19 +56,35 @@ export function App() {
       return
     }
 
-    api.get<Health>('/health').then((response) => setHealth(response.data))
-    api.get<Post[]>('/posts').then((response) => setPosts(response.data))
-    api.get<Theme[]>('/themes').then((response) => setThemes(response.data))
-    api.get<Plugin[]>('/plugins').then((response) => setPlugins(response.data))
-    api.get<User[]>('/users').then((response) => setUsers(response.data))
-    api.get<Page[]>('/pages').then((response) => setPages(response.data))
-    api.get<Category[]>('/categories').then((response) => setCategories(response.data))
-    api.get<Tag[]>('/tags').then((response) => setTags(response.data))
-    api.get<Menu[]>('/menus').then((response) => setMenus(response.data))
-    api.get<Comment[]>('/comments').then((response) => setComments(response.data))
-    api.get<Setting[]>('/settings').then((response) => setSettings(response.data))
-    api.get<DashboardStats>('/dashboard/stats').then((response) => setStats(response.data))
+    setRequestError('')
+    api.get<Health>('/health').then((response) => setHealth(response.data)).catch(handleRequestError)
+    api.get<Post[]>('/posts').then((response) => setPosts(response.data)).catch(handleRequestError)
+    api.get<Theme[]>('/themes').then((response) => setThemes(response.data)).catch(handleRequestError)
+    api.get<Plugin[]>('/plugins').then((response) => setPlugins(response.data)).catch(handleRequestError)
+    api.get<User[]>('/users').then((response) => setUsers(response.data)).catch(handleRequestError)
+    api.get<Page[]>('/pages').then((response) => setPages(response.data)).catch(handleRequestError)
+    api.get<Category[]>('/categories').then((response) => setCategories(response.data)).catch(handleRequestError)
+    api.get<Tag[]>('/tags').then((response) => setTags(response.data)).catch(handleRequestError)
+    api.get<Menu[]>('/menus').then((response) => setMenus(response.data)).catch(handleRequestError)
+    api.get<Comment[]>('/comments').then((response) => setComments(response.data)).catch(handleRequestError)
+    api.get<Setting[]>('/settings').then((response) => setSettings(response.data)).catch(handleRequestError)
+    api.get<DashboardStats>('/dashboard/stats').then((response) => setStats(response.data)).catch(handleRequestError)
   }, [authenticated, initialized])
+
+  const handleRequestError = (error: unknown) => {
+    const status = (error as { response?: { status?: number } })?.response?.status
+    if (status === 401) {
+      setRequestError('请求被拒绝：请重新登录。')
+      clearToken()
+      setAuthenticated(false)
+      return
+    }
+    if (status === 403) {
+      setRequestError('请求被拒绝：当前账号没有对应权限。')
+      return
+    }
+    setRequestError('请求失败，请检查后端服务。')
+  }
 
   if (initialized === null) {
     return <section className="panel login-panel"><p>加载初始化状态中...</p></section>
@@ -94,6 +111,7 @@ export function App() {
       comments={comments}
       settings={settings}
       stats={stats}
+      requestError={requestError}
       onLogout={() => {
         clearToken()
         setAuthenticated(false)
