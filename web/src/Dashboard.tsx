@@ -14,6 +14,7 @@ import {
   AttachmentsSection,
   UsersSection
 } from './AdminSections'
+import { PageEditorSection, PostEditorSection } from './EditorPages'
 
 type Props = {
   posts: Post[]
@@ -33,7 +34,7 @@ type Props = {
 }
 
 export function Dashboard(props: Props) {
-  const [active, setActive] = useState<'overview' | 'posts' | 'pages' | 'taxonomies' | 'comments' | 'users' | 'plugins' | 'settings' | 'register' | 'search' | 'attachments'>('overview')
+  const [active, setActive] = useState<'overview' | 'posts' | 'pages' | 'taxonomies' | 'comments' | 'users' | 'plugins' | 'settings' | 'register' | 'search' | 'attachments' | 'post-editor' | 'page-editor'>('overview')
   const {
     posts,
     themes,
@@ -65,6 +66,8 @@ export function Dashboard(props: Props) {
       {active === 'register' ? <RegistrationSection /> : null}
       {active === 'search' ? <SearchSection /> : null}
       {active === 'attachments' ? <AttachmentsSection attachments={attachments} /> : null}
+      {active === 'post-editor' ? <PostEditorSection posts={posts} /> : null}
+      {active === 'page-editor' ? <PageEditorSection pages={pages} /> : null}
     </AdminShell>
   )
 }

@@ -483,6 +483,35 @@ body {
   font-size: 13px;
 }
 
+.editor-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 24px;
+}
+
+.editor-main,
+.editor-side {
+  margin-top: 0;
+}
+
+.editor-form {
+  display: grid;
+  gap: 14px;
+}
+
+.editor-form input,
+.editor-form textarea {
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  background: rgba(15, 23, 42, 0.88);
+  color: #e5eefc;
+}
+
+.editor-content {
+  min-height: 420px;
+}
+
 @media (max-width: 900px) {
   .admin-layout {
     grid-template-columns: 1fr;
@@ -493,6 +522,10 @@ body {
   }
 
   .secondary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .editor-layout {
     grid-template-columns: 1fr;
   }
 }
