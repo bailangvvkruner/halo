@@ -34,6 +34,7 @@ func (s *Server) Run(addr string) error {
 
 func registerRoutes(g *gin.Engine, cfg config.Config, services *service.Container) {
 	authMw := middleware.AuthMiddleware(services.Auth)
+	permissionMw := middleware.PermissionMiddleware(services.Roles)
 	api := g.Group("/api")
 	{
 		api.GET("/health", func(c *gin.Context) {
@@ -99,6 +100,32 @@ func registerRoutes(g *gin.Engine, cfg config.Config, services *service.Containe
 			c.JSON(http.StatusOK, gin.H{"token": token, "user": user})
 		})
 
+		api.POST("/register", func(c *gin.Context) {
+			var payload model.UserRegistration
+			if err := c.ShouldBindJSON(&payload); err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+				return
+			}
+			if err := services.Registration.Register(&payload); err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+				return
+			}
+			c.JSON(http.StatusCreated, gin.H{"token": payload.Token, "message": "registration created"})
+		})
+
+		api.GET("/register/verify", func(c *gin.Context) {
+			token := c.Query("token")
+			if token == "" {
+				c.JSON(http.StatusBadRequest, gin.H{"message": "token required"})
+				return
+			}
+			if err := services.Registration.Verify(token); err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+				return
+			}
+			c.JSON(http.StatusOK, gin.H{"message": "verified"})
+		})
+
 		api.GET("/posts", func(c *gin.Context) {
 			posts, err := services.Posts.List()
 			if err != nil {
@@ -108,7 +135,7 @@ func registerRoutes(g *gin.Engine, cfg config.Config, services *service.Containe
 			c.JSON(http.StatusOK, posts)
 		})
 
-		api.POST("/posts", authMw, func(c *gin.Context) {
+		api.POST("/posts", authMw, permissionMw, func(c *gin.Context) {
 			var payload struct {
 				Title     string `json:"title"`
 				Slug      string `json:"slug"`
@@ -143,7 +170,7 @@ func registerRoutes(g *gin.Engine, cfg config.Config, services *service.Containe
 			c.JSON(http.StatusOK, post)
 		})
 
-		api.PUT("/posts/:id", authMw, func(c *gin.Context) {
+		api.PUT("/posts/:id", authMw, permissionMw, func(c *gin.Context) {
 			id, err := parseUintParam(c, "id")
 			if err != nil {
 				c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
@@ -169,7 +196,7 @@ func registerRoutes(g *gin.Engine, cfg config.Config, services *service.Containe
 			c.JSON(http.StatusOK, post)
 		})
 
-		api.DELETE("/posts/:id", authMw, func(c *gin.Context) {
+		api.DELETE("/posts/:id", authMw, permissionMw, func(c *gin.Context) {
 			id, err := parseUintParam(c, "id")
 			if err != nil {
 				c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
@@ -218,7 +245,66 @@ func registerRoutes(g *gin.Engine, cfg config.Config, services *service.Containe
 			c.JSON(http.StatusCreated, payload)
 		})
 
-		api.DELETE("/comments/:id", authMw, func(c *gin.Context) {
+		api.GET("/comments/:id/replies", func(c *gin.Context) {
+			id, err := parseUintParam(c, "id")
+			if err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+				return
+			}
+			replies, err := services.Replies.ListByComment(id)
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+				return
+			}
+			c.JSON(http.StatusOK, replies)
+		})
+
+		api.POST("/comments/:id/replies", func(c *gin.Context) {
+			commentID, err := parseUintParam(c, "id")
+			if err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+				return
+			}
+			var payload model.Reply
+			if err := c.ShouldBindJSON(&payload); err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+				return
+			}
+			payload.CommentID = commentID
+			if err := services.Replies.Create(&payload); err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+				return
+			}
+			c.JSON(http.StatusCreated, payload)
+		})
+
+		api.POST("/replies/:id/approve", authMw, permissionMw, func(c *gin.Context) {
+			id, err := parseUintParam(c, "id")
+			if err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+				return
+			}
+			if err := services.Replies.Approve(id); err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+				return
+			}
+			c.JSON(http.StatusOK, gin.H{"message": "reply approved"})
+		})
+
+		api.POST("/replies/:id/reject", authMw, permissionMw, func(c *gin.Context) {
+			id, err := parseUintParam(c, "id")
+			if err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+				return
+			}
+			if err := services.Replies.Reject(id); err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+				return
+			}
+			c.JSON(http.StatusOK, gin.H{"message": "reply rejected"})
+		})
+
+		api.DELETE("/comments/:id", authMw, permissionMw, func(c *gin.Context) {
 			id, err := parseUintParam(c, "id")
 			if err != nil {
 				c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
@@ -254,7 +340,7 @@ func registerRoutes(g *gin.Engine, cfg config.Config, services *service.Containe
 			c.JSON(http.StatusOK, item)
 		})
 
-		api.POST("/pages", authMw, func(c *gin.Context) {
+		api.POST("/pages", authMw, permissionMw, func(c *gin.Context) {
 			var payload model.Page
 			if err := c.ShouldBindJSON(&payload); err != nil {
 				c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
@@ -267,7 +353,7 @@ func registerRoutes(g *gin.Engine, cfg config.Config, services *service.Containe
 			c.JSON(http.StatusCreated, payload)
 		})
 
-		api.PUT("/pages/:id", authMw, func(c *gin.Context) {
+		api.PUT("/pages/:id", authMw, permissionMw, func(c *gin.Context) {
 			id, err := parseUintParam(c, "id")
 			if err != nil {
 				c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
@@ -285,7 +371,7 @@ func registerRoutes(g *gin.Engine, cfg config.Config, services *service.Containe
 			c.JSON(http.StatusOK, payload)
 		})
 
-		api.DELETE("/pages/:id", authMw, func(c *gin.Context) {
+		api.DELETE("/pages/:id", authMw, permissionMw, func(c *gin.Context) {
 			id, err := parseUintParam(c, "id")
 			if err != nil {
 				c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})

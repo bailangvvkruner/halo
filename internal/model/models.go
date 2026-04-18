@@ -70,6 +70,68 @@ type Comment struct {
 	UpdatedAt time.Time `json:"updatedAt"`
 }
 
+type Reply struct {
+	ID        uint      `gorm:"primaryKey" json:"id"`
+	CommentID uint      `gorm:"index" json:"commentId"`
+	Author    string    `gorm:"size:128" json:"author"`
+	Email     string    `gorm:"size:255" json:"email"`
+	Content   string    `gorm:"type:text" json:"content"`
+	Status   string    `gorm:"size:32;default:pending" json:"status"`
+	Allow    bool      `gorm:"-" json:"allow"`
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
+}
+
+type UserRegistration struct {
+	ID        uint      `gorm:"primaryKey" json:"id"`
+	Username  string    `gorm:"uniqueIndex;size:64" json:"username"`
+	Email     string    `gorm:"uniqueIndex;size:255" json:"email"`
+	Password  string    `json:"-"`
+	Token     string    `gorm:"size:128" json:"token"`
+	Verified  bool      `json:"verified"`
+	ExpiresAt time.Time `json:"expiresAt"`
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
+}
+
+type PasswordReset struct {
+	ID        uint      `gorm:"primaryKey" json:"id"`
+	Email     string    `gorm:"index;size:255" json:"email"`
+	Token     string    `gorm:"size:128" json:"token"`
+	ExpiresAt time.Time `json:"expiresAt"`
+	Used      bool      `json:"used"`
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
+}
+
+type PolicyRule struct {
+	ID       uint   `gorm:"primaryKey" json:"id"`
+	Name     string `gorm:"uniqueIndex;size:128" json:"name"`
+	Resource string `gorm:"size:64" json:"resource"`
+	Action   string `gorm:"size:64" json:"action"`
+}
+
+type Role struct {
+	ID          uint      `gorm:"primaryKey" json:"id"`
+	Name        string    `gorm:"uniqueIndex;size:64" json:"name"`
+	DisplayName string    `gorm:"size:255" json:"displayName"`
+	Description string    `gorm:"type:text" json:"description"`
+	CreatedAt   time.Time `json:"createdAt"`
+	UpdatedAt   time.Time `json:"updatedAt"`
+}
+
+type RoleRule struct {
+	ID   uint `gorm:"primaryKey" json:"id"`
+	RoleID uint `gorm:"index" json:"roleId"`
+	RuleID uint `gorm:"index" json:"ruleId"`
+}
+
+type UserRole struct {
+	ID     uint `gorm:"primaryKey" json:"id"`
+	UserID uint `gorm:"index" json:"userId"`
+	RoleID uint `gorm:"index" json:"roleId"`
+}
+
 type Theme struct {
 	ID          uint      `gorm:"primaryKey" json:"id"`
 	Name        string    `gorm:"uniqueIndex;size:128" json:"name"`
