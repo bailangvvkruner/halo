@@ -73,16 +73,41 @@ export function PostsSection({ posts }: { posts: Post[] }) {
 }
 
 export function PagesSection({ pages }: { pages: Page[] }) {
-  return <SimpleSection title="页面管理" items={pages.map((page) => `${page.title} · ${page.slug}`)} />
+  return <ContentTableSection title="页面管理" subtitle="页面列表与别名管理。" primaryAction="新建页面" rows={pages.map((page) => ({
+    title: page.title,
+    description: page.slug,
+    metaA: page.slug,
+    metaB: page.published ? '已发布' : '草稿',
+    metaC: '页面'
+  }))} searchPlaceholder="搜索页面标题或别名" columnA="标题" columnB="别名" columnC="状态" columnD="类型" />
 }
 
 export function TaxonomiesSection(props: { categories: Category[]; tags: Tag[]; menus: Menu[] }) {
   const { categories, tags, menus } = props
   return (
-    <section className="grid-panels secondary-grid">
-      <SimpleSection title="分类" items={categories.map((item) => `${item.displayName} · ${item.slug}`)} />
-      <SimpleSection title="标签" items={tags.map((item) => item.name)} />
-      <SimpleSection title="菜单" items={menus.map((item) => `${item.name} · ${item.items}`)} fullSpan />
+    <section className="grid-panels dashboard-grid">
+      <ContentTableSection title="分类管理" subtitle="分类名称、别名与展示名。" primaryAction="新建分类" rows={categories.map((item) => ({
+        title: item.displayName,
+        description: item.name,
+        metaA: item.slug,
+        metaB: item.name,
+        metaC: '分类'
+      }))} searchPlaceholder="搜索分类名称或别名" columnA="标题" columnB="别名" columnC="名称" columnD="类型" />
+      <ContentTableSection title="标签管理" subtitle="标签管理与命名空间。" primaryAction="新建标签" rows={tags.map((item) => ({
+        title: item.name,
+        description: item.slug,
+        metaA: item.slug,
+        metaB: item.name,
+        metaC: '标签'
+      }))} searchPlaceholder="搜索标签名称或别名" columnA="标题" columnB="别名" columnC="名称" columnD="类型" />
+      <section className="panel compact-panel full-span">
+        <h2>菜单管理</h2>
+        <ul className="mini-list">
+          {menus.map((item) => (
+            <li key={item.id}>{item.name} · {item.items}</li>
+          ))}
+        </ul>
+      </section>
     </section>
   )
 }
@@ -302,6 +327,69 @@ function SimpleSection({ title, items, fullSpan = false }: { title: string; item
           <li key={item}>{item}</li>
         ))}
       </ul>
+    </section>
+  )
+}
+
+function ContentTableSection(props: {
+  title: string
+  subtitle: string
+  primaryAction: string
+  rows: Array<{ title: string; description: string; metaA: string; metaB: string; metaC: string }>
+  searchPlaceholder: string
+  columnA: string
+  columnB: string
+  columnC: string
+  columnD: string
+}) {
+  const { title, subtitle, primaryAction, rows, searchPlaceholder, columnA, columnB, columnC, columnD } = props
+  const [keyword, setKeyword] = useState('')
+  const filtered = rows.filter((row) => {
+    if (!keyword.trim()) {
+      return true
+    }
+    const lower = keyword.toLowerCase()
+    return row.title.toLowerCase().includes(lower) || row.metaA.toLowerCase().includes(lower)
+  })
+
+  return (
+    <section className="panel posts-panel compact-panel">
+      <div className="section-toolbar">
+        <div>
+          <h2>{title}</h2>
+          <p className="section-subtitle">{subtitle}</p>
+        </div>
+        <button>{primaryAction}</button>
+      </div>
+      <div className="table-toolbar">
+        <input value={keyword} onChange={(event) => setKeyword(event.target.value)} placeholder={searchPlaceholder} />
+        <span className="table-count">共 {filtered.length} 条</span>
+      </div>
+      <div className="table-shell">
+        <table className="admin-table">
+          <thead>
+            <tr>
+              <th>{columnA}</th>
+              <th>{columnB}</th>
+              <th>{columnC}</th>
+              <th>{columnD}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filtered.map((row) => (
+              <tr key={`${row.title}-${row.metaA}`}>
+                <td>
+                  <strong>{row.title}</strong>
+                  <p className="table-excerpt">{row.description}</p>
+                </td>
+                <td>{row.metaA}</td>
+                <td>{row.metaB}</td>
+                <td>{row.metaC}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </section>
   )
 }
