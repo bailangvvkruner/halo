@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { api, type Attachment, type Category, type Comment, type DashboardStats, type Menu, type Page, type Plugin, type PluginScanItem, type Post, type RegistrationPayload, type Reply, type SearchResult, type Setting, type Tag, type Theme, type ThemeScanItem, type User } from './api'
+import { api, type Attachment, type Category, type Comment, type DashboardStats, type Menu, type Page, type Plugin, type PluginScanItem, type Post, type RegistrationPayload, type Reply, type SearchResult, type Setting, type Tag, type Theme, type ThemeScanItem, type ThemeSyncItem, type User } from './api'
 
 export function OverviewSection({ stats }: { stats: DashboardStats | null }) {
   return (
@@ -132,10 +132,16 @@ export function UsersSection({ users }: { users: User[] }) {
 export function PluginsSection({ plugins, themes }: { plugins: Plugin[]; themes: Theme[] }) {
   const [scannedThemes, setScannedThemes] = useState<ThemeScanItem[]>([])
   const [scannedPlugins, setScannedPlugins] = useState<PluginScanItem[]>([])
+  const [syncedThemes, setSyncedThemes] = useState<ThemeSyncItem[]>([])
 
   const scanThemes = async () => {
     const response = await api.get<ThemeScanItem[]>('/themes/scan')
     setScannedThemes(response.data)
+  }
+
+  const syncThemes = async () => {
+    const response = await api.post<ThemeSyncItem[]>('/themes/sync')
+    setSyncedThemes(response.data)
   }
 
   const scanPlugins = async () => {
@@ -168,8 +174,12 @@ export function PluginsSection({ plugins, themes }: { plugins: Plugin[]; themes:
         </ul>
         <div className="inline-form">
           <button onClick={scanThemes}>扫描主题目录</button>
+          <button onClick={syncThemes}>同步到主题列表</button>
           {scannedThemes.map((item) => (
             <p key={item.name}>{item.displayName}</p>
+          ))}
+          {syncedThemes.map((item) => (
+            <p key={`synced-${item.id}`}>{item.displayName} · {item.activated ? '已启用' : '未启用'}</p>
           ))}
         </div>
       </section>

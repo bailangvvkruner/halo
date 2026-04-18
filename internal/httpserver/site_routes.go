@@ -25,6 +25,7 @@ func registerSiteRoutes(g *gin.Engine, services *service.Container) {
 			"title":   post.Title,
 			"content": post.Content,
 			"meta":    post.Category,
+			"subtitle": post.Excerpt,
 		})
 		c.Data(http.StatusOK, "text/html; charset=utf-8", []byte(content))
 	})
@@ -46,6 +47,7 @@ func registerSiteRoutes(g *gin.Engine, services *service.Container) {
 					"title":   page.Title,
 					"content": page.Content,
 					"meta":    page.Slug,
+					"subtitle": page.Slug,
 				})
 				c.Data(http.StatusOK, "text/html; charset=utf-8", []byte(content))
 				return
@@ -71,6 +73,7 @@ func registerSiteRoutes(g *gin.Engine, services *service.Container) {
 		}
 		content := services.ThemeRender.Render(tpl, map[string]string{
 			"title":   "Halo Go",
+			"subtitle": "基于 Go 的公开渲染入口",
 			"content": strings.Join(items, ""),
 		})
 		c.Data(http.StatusOK, "text/html; charset=utf-8", []byte(content))

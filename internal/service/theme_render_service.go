@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"html"
 	"os"
 	"path/filepath"
 	"strings"
@@ -74,6 +75,11 @@ func (s *ThemeRenderService) Render(templateContent string, data map[string]stri
 	for key, value := range data {
 		result = strings.ReplaceAll(result, "{{ "+key+" }}", value)
 		result = strings.ReplaceAll(result, "{{"+key+"}}", value)
+		escaped := html.EscapeString(value)
+		result = strings.ReplaceAll(result, "{{ safe:"+key+" }}", value)
+		result = strings.ReplaceAll(result, "{{safe:"+key+"}}", value)
+		result = strings.ReplaceAll(result, "{{ escape:"+key+" }}", escaped)
+		result = strings.ReplaceAll(result, "{{escape:"+key+"}}", escaped)
 	}
 	return result
 }
@@ -88,12 +94,14 @@ const defaultIndexTemplate = `<!doctype html>
     body { font-family: Inter, system-ui, sans-serif; margin: 0; background: #f8fafc; color: #0f172a; }
     .container { max-width: 880px; margin: 0 auto; padding: 48px 24px 72px; }
     .card { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 20px; margin-bottom: 16px; }
+    .meta { color: #64748b; font-size: 14px; margin-bottom: 16px; }
   </style>
 </head>
 <body>
   <main class="container">
     <h1>{{ title }}</h1>
-    {{ content }}
+    <p class="meta">{{ subtitle }}</p>
+    {{ safe:content }}
   </main>
 </body>
 </html>`

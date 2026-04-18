@@ -21,6 +21,8 @@
 - P1 基础公开渲染入口已补：`/`、`/posts/:slug`、`/pages/:slug`，后台已补搜索入口
 - P1 主题渲染第二轮已补：主题目录自动初始化、从主题目录读取 `index.html` / `post.html` / `page.html`
 - P1 主题管理增强已补：主题目录扫描接口 `/api/themes/scan`，后台支持扫描主题目录
+- P1 插件与附件增强已补：插件目录扫描接口 `/api/plugins/scan`，附件返回公开 URL，后台新增附件模块入口
+- P1 主题同步增强已补：`POST /api/themes/sync`，后台可把主题目录同步到主题列表，模板变量已增加 `subtitle` 与安全渲染占位
 
 #### 初始化与认证
 

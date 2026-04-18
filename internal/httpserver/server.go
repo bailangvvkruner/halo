@@ -604,6 +604,15 @@ func registerRoutes(g *gin.Engine, cfg config.Config, services *service.Containe
 			c.JSON(http.StatusOK, items)
 		})
 
+		api.POST("/themes/sync", authMw, permissionMw, func(c *gin.Context) {
+			items, err := services.Themes.SyncScannedThemes()
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+				return
+			}
+			c.JSON(http.StatusOK, items)
+		})
+
 		api.GET("/plugins", func(c *gin.Context) {
 			items, err := services.Plugins.List()
 			if err != nil {

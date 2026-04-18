@@ -104,6 +104,8 @@ export type ThemeScanItem = {
   displayName: string
 }
 
+export type ThemeSyncItem = Theme
+
 export type PluginScanItem = {
   name: string
   displayName: string
