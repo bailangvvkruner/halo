@@ -42,6 +42,15 @@ export function App() {
   }, [])
 
   useEffect(() => {
+	if (initialized === false && window.location.pathname !== '/system/setup') {
+		window.history.replaceState({}, '', '/system/setup')
+	}
+	if (initialized && window.location.pathname === '/system/setup') {
+		window.history.replaceState({}, '', '/')
+	}
+  }, [initialized])
+
+  useEffect(() => {
     if (!authenticated || !initialized) {
       return
     }

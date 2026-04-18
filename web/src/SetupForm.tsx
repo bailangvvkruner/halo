@@ -50,36 +50,38 @@ export function SetupForm({ onSuccess }: Props) {
         </div>
 
         <form className="setup-form" onSubmit={submit}>
-          <label>
-            <span>语言</span>
-            <input value={form.language} onChange={(event) => updateField('language', event.target.value)} />
-          </label>
-          <label>
-            <span>外部访问地址</span>
-            <input value={form.baseURL} onChange={(event) => updateField('baseURL', event.target.value)} />
-          </label>
-          <label>
-            <span>站点标题</span>
-            <input value={form.siteTitle} onChange={(event) => updateField('siteTitle', event.target.value)} />
-          </label>
-          <label>
-            <span>用户名</span>
-            <input value={form.username} onChange={(event) => updateField('username', event.target.value)} />
-          </label>
-          <label>
-            <span>电子邮箱</span>
-            <input value={form.email} onChange={(event) => updateField('email', event.target.value)} />
-          </label>
-          <label>
-            <span>密码</span>
-            <input type="password" value={form.password} onChange={(event) => updateField('password', event.target.value)} />
-          </label>
-          <label>
-            <span>确认密码</span>
-            <input type="password" value={form.confirmPassword} onChange={(event) => updateField('confirmPassword', event.target.value)} />
-          </label>
+          <div className="setup-field">
+            <label htmlFor="language">语言</label>
+            <input id="language" value={form.language} onChange={(event) => updateField('language', event.target.value)} />
+          </div>
+          <div className="setup-field">
+            <label htmlFor="baseURL">外部访问地址</label>
+            <input id="baseURL" value={form.baseURL} onChange={(event) => updateField('baseURL', event.target.value)} />
+          </div>
+          <div className="setup-field">
+            <label htmlFor="siteTitle">站点标题</label>
+            <input id="siteTitle" value={form.siteTitle} onChange={(event) => updateField('siteTitle', event.target.value)} />
+          </div>
+          <div className="setup-field">
+            <label htmlFor="username">用户名</label>
+            <input id="username" value={form.username} onChange={(event) => updateField('username', event.target.value)} />
+          </div>
+          <div className="setup-field">
+            <label htmlFor="email">电子邮箱</label>
+            <input id="email" value={form.email} onChange={(event) => updateField('email', event.target.value)} />
+          </div>
+          <div className="setup-field">
+            <label htmlFor="password">密码</label>
+            <input id="password" type="password" value={form.password} onChange={(event) => updateField('password', event.target.value)} />
+          </div>
+          <div className="setup-field">
+            <label htmlFor="confirmPassword">确认密码</label>
+            <input id="confirmPassword" type="password" value={form.confirmPassword} onChange={(event) => updateField('confirmPassword', event.target.value)} />
+          </div>
           {error ? <p className="error-text">{error}</p> : null}
-          <button className="setup-submit" type="submit" disabled={loading}>{loading ? '初始化中' : '初始化'}</button>
+          <div className="setup-actions">
+            <button className="setup-submit" type="submit" disabled={loading}>{loading ? '初始化中' : '初始化'}</button>
+          </div>
         </form>
       </section>
     </main>

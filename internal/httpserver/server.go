@@ -762,11 +762,25 @@ func registerRoutes(g *gin.Engine, cfg config.Config, services *service.Containe
 	}
 
 	staticDir := filepath.Join("web", "dist")
+	g.GET("/system/setup", func(c *gin.Context) {
+		c.File(filepath.Join(staticDir, "index.html"))
+	})
 	g.Static("/assets", filepath.Join(staticDir, "assets"))
 	g.NoRoute(func(c *gin.Context) {
 		if strings.HasPrefix(c.Request.URL.Path, "/api/") {
 			c.JSON(http.StatusNotFound, gin.H{"message": "not found"})
 			return
+		}
+		if c.Request.URL.Path == "/" {
+			initialized, err := services.Setup.IsInitialized()
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+				return
+			}
+			if !initialized {
+				c.Redirect(http.StatusFound, "/system/setup")
+				return
+			}
 		}
 		c.File(filepath.Join(staticDir, "index.html"))
 	})
