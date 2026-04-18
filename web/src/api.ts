@@ -1,7 +1,16 @@
 import axios from 'axios'
+import { getToken } from './auth'
 
 export const api = axios.create({
   baseURL: '/api'
+})
+
+api.interceptors.request.use((config) => {
+  const token = getToken()
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`
+  }
+  return config
 })
 
 export type Health = {
@@ -87,4 +96,9 @@ export type User = {
 	 id: number
 	 username: string
 	 role: string
+}
+
+export type LoginResponse = {
+  token: string
+  user: User
 }

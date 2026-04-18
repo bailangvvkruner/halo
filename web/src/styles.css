@@ -17,6 +17,44 @@ body {
   padding: 48px 24px 80px;
 }
 
+.login-panel {
+  max-width: 420px;
+  margin: 80px auto;
+}
+
+.login-form {
+  display: grid;
+  gap: 16px;
+}
+
+.login-form label {
+  display: grid;
+  gap: 8px;
+}
+
+.login-form input {
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  background: rgba(15, 23, 42, 0.9);
+  color: #e5eefc;
+}
+
+.login-form button,
+.logout-button {
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: none;
+  background: #2563eb;
+  color: white;
+  cursor: pointer;
+}
+
+.error-text {
+  color: #fda4af;
+  margin: 0;
+}
+
 .hero,
 .panel {
   background: rgba(17, 25, 40, 0.86);
@@ -24,6 +62,13 @@ body {
   border-radius: 20px;
   padding: 28px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.28);
+}
+
+.hero {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
 }
 
 .panel {
