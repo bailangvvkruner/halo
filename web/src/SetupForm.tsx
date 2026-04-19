@@ -127,6 +127,7 @@ export function SetupForm({ onSuccess }: Props) {
   return (
     <main className="setup-shell">
       <section className="setup-card">
+        <div className="setup-logo">Halo</div>
         <div className="setup-header">
           <h1>{currentMessages.title}</h1>
         </div>
