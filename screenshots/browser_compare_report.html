@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>Halo Go vs Java Halo — 真人操作逐页对比</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; background:#0a0e1a; color:#e2e8f0; padding:20px; }
+  .header { text-align:center; padding:30px 20px; background:linear-gradient(135deg,#1e293b,#334155); border-radius:16px; margin-bottom:24px; border:1px solid #475569; }
+  .header h1 { font-size:26px; background:linear-gradient(90deg,#38bdf8,#818cf8); -webkit-background-clip:text;-webkit-text-fill-color:transparent; }
+  .header .sub { color:#94a3b8; margin-top:8px; font-size:13px; line-height:1.6; }
+  .badge { display:inline-block; padding:4px 12px; border-radius:20px; font-size:12px; font-weight:600; margin:3px; }
+  .badge-java { background:#2563eb22; color:#60a5fa; border:1px solid #2563eb44; }
+  .badge-go { background:#05966922; color:#34d399; border:1px solid #05966944; }
+  table { width:100%; border-collapse:separate; border-spacing:0; }
+  th { padding:14px 16px; background:#0f172a; color:#94a3b8; font-weight:600; font-size:13px; text-align:left; border-bottom:2px solid #38bdf8; }
+  th:first-child { width:180px; }
+  td { padding:12px; border-bottom:1px solid #1f2937; vertical-align:top; }
+  tr:hover td { background:#111827; }
+  img:hover { transform:scale(1.02); transition:transform .3s; cursor:zoom-in; }
+  .footer { text-align:center; padding:30px; color:#475569; font-size:12px; line-height:1.8; }
+  .note { background:#1e293b; border-left:4px solid #f59e0b; padding:16px 20px; border-radius:8px; margin:20px 0; font-size:13px; color:#fbbf24; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🚀 Halo Go vs Java Halo — 浏览器真人操作逐页对比</h1>
+  <div class="sub">
+    <p>使用 Playwright Chromium 真实浏览器渲染 · 模拟真人访问每个页面</p>
+    <p>
+      <span class="badge badge-java">Java Halo 2.19.0 → localhost:8090</span>
+      <span class="badge badge-go">Go Halo 0.1.0 → localhost:8091</span>
+    </p>
+  </div>
+</div>
+
+<div class="note">
+  ⚠️ <strong>说明：</strong>此报告通过真实 Chromium 浏览器访问两个服务，对每个页面进行完整渲染后截图。
+  对比的是<strong>页面实际渲染效果</strong>而非 JSON 返回值。Go 版本为纯 API 后台，无前端控制台 UI；
+  Java 版本包含完整的 Vue.js 前端控制台。
+</div>
+
+<table>
+  <tr>
+    <th>页面 / 操作</th>
+    <th>🟦 Java Halo (原版)</th>
+    <th>🟩 Go Halo (重写)</th>
+  </tr>
+  
+    <tr>
+      <td style="font-weight:600;font-size:14px;vertical-align:top;padding-top:16px">🏠 首页（前台）</td>
+      <td style="background:#0f172a"><img src="java_🏠 首页（前台）.png" style="max-width:100%;border-radius:8px;border:2px solid #334155" /></td>
+      <td style="background:#0f172a"><img src="go_🏠 首页（前台）.png" style="max-width:100%;border-radius:8px;border:2px solid #334155" /></td>
+    </tr>
+    <tr>
+      <td style="font-weight:600;font-size:14px;vertical-align:top;padding-top:16px">📋 健康检查</td>
+      <td style="background:#0f172a"><img src="java_📋 健康检查.png" style="max-width:100%;border-radius:8px;border:2px solid #334155" /></td>
+      <td style="background:#0f172a"><img src="go_📋 健康检查.png" style="max-width:100%;border-radius:8px;border:2px solid #334155" /></td>
+    </tr>
+    <tr>
+      <td style="font-weight:600;font-size:14px;vertical-align:top;padding-top:16px">ℹ️ 系统信息</td>
+      <td style="background:#0f172a"><img src="java_ℹ️ 系统信息.png" style="max-width:100%;border-radius:8px;border:2px solid #334155" /></td>
+      <td style="background:#0f172a"><img src="go_ℹ️ 系统信息.png" style="max-width:100%;border-radius:8px;border:2px solid #334155" /></td>
+    </tr>
+    <tr>
+      <td style="font-weight:600;font-size:14px;vertical-align:top;padding-top:16px">🔐 控制台入口（后台登录）</td>
+      <td style="background:#0f172a"><img src="java_🔐 控制台入口（后台登录）.png" style="max-width:100%;border-radius:8px;border:2px solid #334155" /></td>
+      <td style="background:#0f172a"><img src="go_🔐 控制台入口（后台登录）.png" style="max-width:100%;border-radius:8px;border:2px solid #334155" /></td>
+    </tr>
+    <tr>
+      <td style="font-weight:600;font-size:14px;vertical-align:top;padding-top:16px">📝 文章列表 API</td>
+      <td style="background:#0f172a"><img src="java_📝 文章列表 API.png" style="max-width:100%;border-radius:8px;border:2px solid #334155" /></td>
+      <td style="background:#0f172a"><img src="go_📝 文章列表 API.png" style="max-width:100%;border-radius:8px;border:2px solid #334155" /></td>
+    </tr>
+    <tr>
+      <td style="font-weight:600;font-size:14px;vertical-align:top;padding-top:16px">📂 分类列表 API</td>
+      <td style="background:#0f172a"><img src="java_📂 分类列表 API.png" style="max-width:100%;border-radius:8px;border:2px solid #334155" /></td>
+      <td style="background:#0f172a"><img src="go_📂 分类列表 API.png" style="max-width:100%;border-radius:8px;border:2px solid #334155" /></td>
+    </tr>
+    <tr>
+      <td style="font-weight:600;font-size:14px;vertical-align:top;padding-top:16px">🏷️ 标签列表 API</td>
+      <td style="background:#0f172a"><img src="java_🏷️ 标签列表 API.png" style="max-width:100%;border-radius:8px;border:2px solid #334155" /></td>
+      <td style="background:#0f172a"><img src="go_🏷️ 标签列表 API.png" style="max-width:100%;border-radius:8px;border:2px solid #334155" /></td>
+    </tr>
+    <tr>
+      <td style="font-weight:600;font-size:14px;vertical-align:top;padding-top:16px">💬 评论列表 API</td>
+      <td style="background:#0f172a"><img src="java_💬 评论列表 API.png" style="max-width:100%;border-radius:8px;border:2px solid #334155" /></td>
+      <td style="background:#0f172a"><img src="go_💬 评论列表 API.png" style="max-width:100%;border-radius:8px;border:2px solid #334155" /></td>
+    </tr>
+    <tr>
+      <td style="font-weight:600;font-size:14px;vertical-align:top;padding-top:16px">👤 用户列表 API</td>
+      <td style="background:#0f172a"><img src="java_👤 用户列表 API.png" style="max-width:100%;border-radius:8px;border:2px solid #334155" /></td>
+      <td style="background:#0f172a"><img src="go_👤 用户列表 API.png" style="max-width:100%;border-radius:8px;border:2px solid #334155" /></td>
+    </tr>
+</table>
+
+<div class="footer">
+  <p>生成时间: 2026/5/13 02:01:09</p>
+  <p>测试工具: Playwright (Chromium) | 截图目录: /workspace/screenshots</p>
+  <p>Go 技术栈: Go 1.25 + Gin + GORM + SQLite (零CGO) | Java 技术栈: Java 25 + Spring Boot 3.3.3 + R2DBC + H2</p>
+</div>
+
+</body></html>
