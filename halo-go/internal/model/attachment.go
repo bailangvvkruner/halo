@@ -31,6 +31,5 @@ func (a *Attachment) GetGVK() extension.GVK {
 }
 
 func init() {
-	scheme := extension.NewScheme()
-	_ = scheme.Register((&Attachment{}).GetGVK(), &Attachment{})
+	_ = extension.DefaultScheme().Register((&Attachment{}).GetGVK(), &Attachment{})
 }

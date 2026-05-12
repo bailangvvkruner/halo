@@ -26,6 +26,5 @@ func (rb *RoleBinding) GetGVK() extension.GVK {
 }
 
 func init() {
-	scheme := extension.NewScheme()
-	_ = scheme.Register((&RoleBinding{}).GetGVK(), &RoleBinding{})
+	_ = extension.DefaultScheme().Register((&RoleBinding{}).GetGVK(), &RoleBinding{})
 }

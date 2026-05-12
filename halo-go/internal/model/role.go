@@ -35,6 +35,5 @@ func (r *Role) GetGVK() extension.GVK {
 }
 
 func init() {
-	scheme := extension.NewScheme()
-	_ = scheme.Register((&Role{}).GetGVK(), &Role{})
+	_ = extension.DefaultScheme().Register((&Role{}).GetGVK(), &Role{})
 }

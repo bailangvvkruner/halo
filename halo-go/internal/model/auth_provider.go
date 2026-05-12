@@ -21,3 +21,7 @@ func newAuthProvider() *AuthProvider { return &AuthProvider{} }
 func (ap *AuthProvider) GetGVK() extension.GVK {
 	return extension.NewGVK("", "v1alpha1", "AuthProvider", "authproviders", "authprovider")
 }
+
+func init() {
+	_ = extension.DefaultScheme().Register((&AuthProvider{}).GetGVK(), &AuthProvider{})
+}

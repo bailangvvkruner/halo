@@ -31,6 +31,5 @@ func (cm *ConfigMap) GetGVK() extension.GVK {
 }
 
 func init() {
-	scheme := extension.NewScheme()
-	_ = scheme.Register((&ConfigMap{}).GetGVK(), &ConfigMap{})
+	_ = extension.DefaultScheme().Register((&ConfigMap{}).GetGVK(), &ConfigMap{})
 }

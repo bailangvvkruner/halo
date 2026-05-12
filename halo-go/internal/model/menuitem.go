@@ -29,6 +29,5 @@ func (mi *MenuItem) GetGVK() extension.GVK {
 }
 
 func init() {
-	scheme := extension.NewScheme()
-	_ = scheme.Register((&MenuItem{}).GetGVK(), &MenuItem{})
+	_ = extension.DefaultScheme().Register((&MenuItem{}).GetGVK(), &MenuItem{})
 }

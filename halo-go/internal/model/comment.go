@@ -39,6 +39,5 @@ func (c *Comment) GetGVK() extension.GVK {
 }
 
 func init() {
-	scheme := extension.NewScheme()
-	_ = scheme.Register((&Comment{}).GetGVK(), &Comment{})
+	_ = extension.DefaultScheme().Register((&Comment{}).GetGVK(), &Comment{})
 }

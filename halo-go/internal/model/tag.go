@@ -29,6 +29,5 @@ func (t *Tag) GetGVK() extension.GVK {
 }
 
 func init() {
-	scheme := extension.NewScheme()
-	_ = scheme.Register((&Tag{}).GetGVK(), &Tag{})
+	_ = extension.DefaultScheme().Register((&Tag{}).GetGVK(), &Tag{})
 }

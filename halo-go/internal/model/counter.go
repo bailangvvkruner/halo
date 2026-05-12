@@ -21,3 +21,7 @@ func newCounter() *Counter { return &Counter{} }
 func (c *Counter) GetGVK() extension.GVK {
 	return extension.NewGVK("", "v1alpha1", "Counter", "counters", "counter")
 }
+
+func init() {
+	_ = extension.DefaultScheme().Register((&Counter{}).GetGVK(), &Counter{})
+}

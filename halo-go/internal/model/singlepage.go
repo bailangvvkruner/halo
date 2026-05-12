@@ -43,6 +43,5 @@ func (sp *SinglePage) GetGVK() extension.GVK {
 }
 
 func init() {
-	scheme := extension.NewScheme()
-	_ = scheme.Register((&SinglePage{}).GetGVK(), &SinglePage{})
+	_ = extension.DefaultScheme().Register((&SinglePage{}).GetGVK(), &SinglePage{})
 }

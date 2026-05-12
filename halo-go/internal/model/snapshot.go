@@ -35,6 +35,5 @@ func (s *Snapshot) GetGVK() extension.GVK {
 }
 
 func init() {
-	scheme := extension.NewScheme()
-	_ = scheme.Register((&Snapshot{}).GetGVK(), &Snapshot{})
+	_ = extension.DefaultScheme().Register((&Snapshot{}).GetGVK(), &Snapshot{})
 }

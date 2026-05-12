@@ -26,3 +26,7 @@ func newAnnotationSetting() *AnnotationSetting { return &AnnotationSetting{} }
 func (as *AnnotationSetting) GetGVK() extension.GVK {
 	return extension.NewGVK("", "v1alpha1", "AnnotationSetting", "annotationsettings", "annotationsetting")
 }
+
+func init() {
+	_ = extension.DefaultScheme().Register((&AnnotationSetting{}).GetGVK(), &AnnotationSetting{})
+}

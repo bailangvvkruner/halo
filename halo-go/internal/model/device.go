@@ -29,3 +29,7 @@ func newDevice() *Device { return &Device{} }
 func (d *Device) GetGVK() extension.GVK {
 	return extension.NewGVK("", "v1alpha1", "Device", "devices", "device")
 }
+
+func init() {
+	_ = extension.DefaultScheme().Register((&Device{}).GetGVK(), &Device{})
+}

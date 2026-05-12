@@ -27,3 +27,7 @@ func newReverseProxy() *ReverseProxy { return &ReverseProxy{} }
 func (rp *ReverseProxy) GetGVK() extension.GVK {
 	return extension.NewGVK("", "v1alpha1", "ReverseProxy", "reverseproxies", "reverseproxy")
 }
+
+func init() {
+	_ = extension.DefaultScheme().Register((&ReverseProxy{}).GetGVK(), &ReverseProxy{})
+}

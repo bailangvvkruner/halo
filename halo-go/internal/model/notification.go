@@ -44,6 +44,5 @@ func (n *Notification) GetGVK() extension.GVK {
 }
 
 func init() {
-	scheme := extension.NewScheme()
-	_ = scheme.Register((&Notification{}).GetGVK(), &Notification{})
+	_ = extension.DefaultScheme().Register((&Notification{}).GetGVK(), &Notification{})
 }

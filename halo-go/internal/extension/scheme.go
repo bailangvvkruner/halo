@@ -6,19 +6,35 @@ import (
 	"sync"
 )
 
+var defaultScheme = NewScheme()
+
+func DefaultScheme() *Scheme {
+	return defaultScheme
+}
+
+type gvkKey struct {
+	Group   string
+	Version string
+	Kind    string
+}
+
+func toGVKKey(gvk GVK) gvkKey {
+	return gvkKey{Group: gvk.Group, Version: gvk.Version, Kind: gvk.Kind}
+}
+
 // Scheme 维护 GVK 到 Go 类型之间的映射注册表。
 // 通过 Scheme，框架可以在运行时根据 GVK 信息实例化对应的 Go 结构体，
 // 实现类似 Kubernetes Scheme 的类型发现和反序列化能力。
 type Scheme struct {
 	mu       sync.RWMutex
-	gvkToType map[GVK]reflect.Type
+	gvkToType map[gvkKey]reflect.Type
 	typeToGVK map[reflect.Type]GVK
 }
 
 // NewScheme 创建并返回一个新的 Scheme 实例。
 func NewScheme() *Scheme {
 	return &Scheme{
-		gvkToType: make(map[GVK]reflect.Type),
+		gvkToType: make(map[gvkKey]reflect.Type),
 		typeToGVK: make(map[reflect.Type]GVK),
 	}
 }
@@ -46,14 +62,14 @@ func (s *Scheme) Register(gvk GVK, obj Extension) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	if existing, exists := s.gvkToType[gvk]; exists {
+	if existing, exists := s.gvkToType[toGVKKey(gvk)]; exists {
 		return fmt.Errorf("GVK %s 已被类型 %s 注册，不可重复注册", gvk, existing.Name())
 	}
 	if existingGVK, exists := s.typeToGVK[t]; exists {
 		return fmt.Errorf("类型 %s 已注册到 GVK %s，不可重复注册", t.Name(), existingGVK)
 	}
 
-	s.gvkToType[gvk] = t
+	s.gvkToType[toGVKKey(gvk)] = t
 	s.typeToGVK[t] = gvk
 	return nil
 }
@@ -63,8 +79,8 @@ func (s *Scheme) KnownTypes() []GVK {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
-	gvks := make([]GVK, 0, len(s.gvkToType))
-	for gvk := range s.gvkToType {
+	gvks := make([]GVK, 0, len(s.typeToGVK))
+	for _, gvk := range s.typeToGVK {
 		gvks = append(gvks, gvk)
 	}
 	return gvks
@@ -74,7 +90,7 @@ func (s *Scheme) KnownTypes() []GVK {
 // 如果 GVK 未注册，返回错误。返回值是满足 Extension 接口的对象。
 func (s *Scheme) New(gvk GVK) (Extension, error) {
 	s.mu.RLock()
-	t, ok := s.gvkToType[gvk]
+	t, ok := s.gvkToType[toGVKKey(gvk)]
 	s.mu.RUnlock()
 
 	if !ok {
@@ -120,7 +136,7 @@ func (s *Scheme) GVKFor(obj Extension) (GVK, bool) {
 // IsRegistered 判断指定的 GVK 是否已在 Scheme 中注册。
 func (s *Scheme) IsRegistered(gvk GVK) bool {
 	s.mu.RLock()
-	_, ok := s.gvkToType[gvk]
+	_, ok := s.gvkToType[toGVKKey(gvk)]
 	s.mu.RUnlock()
 	return ok
 }

@@ -1,0 +1,44 @@
+version: "3.8"
+
+services:
+  halo-java:
+    image: halohub/halo:2.24.0
+    container_name: halo-java
+    ports:
+      - "8091:8090"
+    volumes:
+      - java-data:/root/.halo2
+    environment:
+      - JVM_OPTS=-Xms256m -Xmx512m
+      - TZ=Asia/Shanghai
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8090/actuator/health/readiness"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 60s
+
+  halo-go:
+    build:
+      context: ./halo-go
+      dockerfile: Dockerfile
+    container_name: halo-go
+    ports:
+      - "8092:8090"
+    volumes:
+      - go-data:/data
+    environment:
+      - HALO_PORT=8090
+      - HALO_DB_DATASOURCE=/data/halo.db
+      - HALO_JWT_SECRET=halo-compare-secret-2024
+      - TZ=Asia/Shanghai
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8090/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+volumes:
+  java-data:
+  go-data:

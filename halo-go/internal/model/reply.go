@@ -36,6 +36,5 @@ func (r *Reply) GetGVK() extension.GVK {
 }
 
 func init() {
-	scheme := extension.NewScheme()
-	_ = scheme.Register((&Reply{}).GetGVK(), &Reply{})
+	_ = extension.DefaultScheme().Register((&Reply{}).GetGVK(), &Reply{})
 }

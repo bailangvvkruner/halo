@@ -23,3 +23,7 @@ func newUserConnection() *UserConnection { return &UserConnection{} }
 func (uc *UserConnection) GetGVK() extension.GVK {
 	return extension.NewGVK("", "v1alpha1", "UserConnection", "userconnections", "userconnection")
 }
+
+func init() {
+	_ = extension.DefaultScheme().Register((&UserConnection{}).GetGVK(), &UserConnection{})
+}
