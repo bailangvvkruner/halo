@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import requests, os, sys, time
 
-JAR_PATH = '/data/halo2/halo-2.19.0.jar'
+JAR_PATH = '/workspace/halo-2.19.0.jar'
 URL = 'https://github.com/halo-dev/halo/releases/download/v2.19.0/halo-2.19.0.jar'
 HEADERS = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36'}
 

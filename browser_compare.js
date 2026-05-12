@@ -4,8 +4,8 @@ const http = require('http');
 const path = require('path');
 
 const SCREENSHOTS_DIR = '/workspace/screenshots';
-const JAVA_HALO_URL = 'http://localhost:8090';
-const GO_HALO_URL = 'http://localhost:8091';
+const JAVA_HALO_URL = 'http://localhost:8091';
+const GO_HALO_URL = 'http://localhost:8090';
 
 // 模拟真人操作步骤：每个步骤包含 URL 和操作描述
 const TEST_SCENARIOS = [
@@ -74,6 +74,69 @@ const TEST_SCENARIOS = [
       await page.waitForLoadState('networkidle');
     }
   },
+  {
+    name: '📄 单页 API',
+    url: '/api/v1alpha1/singlepages',
+    action: async (page) => {
+      await page.waitForLoadState('networkidle');
+    }
+  },
+  {
+    name: '🍽️ 菜单 API',
+    url: '/api/v1alpha1/menus',
+    action: async (page) => {
+      await page.waitForLoadState('networkidle');
+    }
+  },
+  {
+    name: '📌 菜单项 API',
+    url: '/api/v1alpha1/menuitems',
+    action: async (page) => {
+      await page.waitForLoadState('networkidle');
+    }
+  },
+  {
+    name: '📊 统计信息 API',
+    url: '/api/v1alpha1/stats',
+    action: async (page) => {
+      await page.waitForLoadState('networkidle');
+    }
+  },
+  {
+    name: '📎 附件 API',
+    url: '/api/v1alpha1/attachments',
+    action: async (page) => {
+      await page.waitForLoadState('networkidle');
+    }
+  },
+  {
+    name: '🔌 插件 API',
+    url: '/api/v1alpha1/plugins',
+    action: async (page) => {
+      await page.waitForLoadState('networkidle');
+    }
+  },
+  {
+    name: '🎨 主题 API',
+    url: '/api/v1alpha1/themes',
+    action: async (page) => {
+      await page.waitForLoadState('networkidle');
+    }
+  },
+  {
+    name: '👥 角色 API',
+    url: '/api/v1alpha1/roles',
+    action: async (page) => {
+      await page.waitForLoadState('networkidle');
+    }
+  },
+  {
+    name: '📸 快照 API',
+    url: '/api/v1alpha1/snapshots',
+    action: async (page) => {
+      await page.waitForLoadState('networkidle');
+    }
+  },
 ];
 
 async function checkServiceAlive(url) {
@@ -137,7 +200,7 @@ function generateReport(results) {
   <div class="sub">
     <p>使用 Playwright Chromium 真实浏览器渲染 · 模拟真人访问每个页面</p>
     <p>
-      <span class="badge badge-java">Java Halo 2.24.0 → localhost:8090</span>
+      <span class="badge badge-java">Java Halo 2.19.0 → localhost:8090</span>
       <span class="badge badge-go">Go Halo 0.1.0 → localhost:8091</span>
     </p>
   </div>
@@ -161,7 +224,7 @@ function generateReport(results) {
 <div class="footer">
   <p>生成时间: ${new Date().toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' })}</p>
   <p>测试工具: Playwright (Chromium) | 截图目录: ${SCREENSHOTS_DIR}</p>
-  <p>Go 技术栈: Go 1.25 + Gin + GORM + SQLite (零CGO) | Java 技术栈: Java 21 + Spring WebFlux + R2DBC + H2</p>
+  <p>Go 技术栈: Go 1.25 + Gin + GORM + SQLite (零CGO) | Java 技术栈: Java 25 + Spring Boot 3.3.3</p>
 </div>
 
 </body></html>`;
