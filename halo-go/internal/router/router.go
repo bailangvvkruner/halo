@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/halo-dev/halo-go/internal/config"
+	"github.com/halo-dev/halo-go/internal/data"
 	"github.com/halo-dev/halo-go/internal/extension"
 	"github.com/halo-dev/halo-go/internal/handler"
 	"github.com/halo-dev/halo-go/internal/middleware"
@@ -30,7 +31,7 @@ type Server struct {
 	StatsService       service.StatsService
 }
 
-func RegisterRoutes(r *gin.Engine, srv *Server, cfg *config.Config) {
+func RegisterRoutes(r *gin.Engine, srv *Server, cfg *config.Config, store *data.ExtensionStore) {
 	authMiddleware := middleware.AuthMiddleware(cfg.JWT.Secret)
 	apiV1 := r.Group("/api/v1alpha1")
 	apiV1.Use(authMiddleware)
@@ -228,6 +229,18 @@ func RegisterRoutes(r *gin.Engine, srv *Server, cfg *config.Config) {
 		auth.POST("/password-reset", authHandler.PasswordReset)
 		auth.GET("/me", authMiddleware, authHandler.CurrentUser)
 	}
+
+	setupHandler := handler.NewSetupHandler(store)
+	setup := r.Group("/api/v1alpha1")
+	{
+		setup.GET("/setup", setupHandler.GetStatus)
+		setup.POST("/setup", setupHandler.DoSetup)
+	}
+
+	staticHandler := handler.NewStaticHandler()
+	r.GET("/console/*filepath", staticHandler.ServeConsole)
+	r.GET("/uc/*filepath", staticHandler.ServeUC)
+	r.StaticFS("/ui-assets", staticHandler.UIAssetsFS())
 }
 
 var _ = extension.GVK{}

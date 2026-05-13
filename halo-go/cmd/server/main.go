@@ -83,7 +83,7 @@ func main() {
 		log.Fatalf("创建服务器引擎失败: %v", err)
 	}
 
-	router.RegisterRoutes(engine, srv, cfg)
+	router.RegisterRoutes(engine, srv, cfg, store)
 
 	defaultUser := "admin"
 	if err := seed.SeedData(store, defaultUser); err != nil {
