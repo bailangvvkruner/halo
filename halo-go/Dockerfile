@@ -15,12 +15,12 @@ RUN apk add --no-cache ca-certificates tzdata sqlite-libs curl && \
     echo "Asia/Shanghai" > /etc/timezone
 
 ENV HALO_PORT=8090 \
-    HALO_DB_DATASOURCE=/data/halo.db \
-    HALO_WORK_DIR=/data
+    HALO_DB_DATASOURCE=/app/halo.db \
+    HALO_WORK_DIR=/app
 
 WORKDIR /app
 
-VOLUME ["/data"]
+VOLUME ["/app"]
 
 EXPOSE 8090
 
@@ -35,4 +35,4 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
   CMD curl -sf http://localhost:${HALO_PORT:-8090}/actuator/health || exit 1
 
 ENTRYPOINT ["halo-server"]
-CMD ["--halo.work-dir=/data", "--server.port=8090"]
+CMD ["--halo.work-dir=/app", "--server.port=8090"]
