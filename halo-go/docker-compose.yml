@@ -1,0 +1,27 @@
+version: "3.8"
+
+services:
+  halo-go:
+    image: halohub/halo-go:latest
+    container_name: halo-go
+    restart: always
+    ports:
+      - "8090:8090"
+    volumes:
+      - ~/.halo2:/root/.halo2
+    environment:
+      - GIN_MODE=release
+    command:
+      - "--halo.work-dir=/root/.halo2"
+      - "--server.port=8090"
+
+  halo-java:
+    image: halohub/halo:2
+    container_name: halo-java
+    restart: always
+    ports:
+      - "8091:8090"
+    volumes:
+      - ~/.halo2-java:/root/.halo2
+    environment:
+      - JVM_OPTS=-Xmx256m -Xms256m

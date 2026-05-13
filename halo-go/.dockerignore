@@ -1,0 +1,27 @@
+# Binaries
+halo-server
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Data
+data/
+*.db
+*.db-shm
+*.db-wal
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# Logs
+*.log
+
+# Git
+.git/
+.gitignore
+
+# Test
+*_test.go
