@@ -5,9 +5,45 @@ on:
     branches: [main]
     tags:
       - "v*"
+  pull_request:
+    branches: [main]
 
 jobs:
-  build-and-push:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-qemu-action@v3
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/metadata-action@v5
+        id: meta
+        with:
+          images: ${{ secrets.DOCKERHUB_USERNAME || 'halohub' }}/halo-go
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha,format=short
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: halo-go
+          file: Dockerfile
+          platforms: linux/amd64
+          push: false
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  push:
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
+    needs: build
     runs-on: ubuntu-latest
 
     steps:
@@ -28,7 +64,6 @@ jobs:
           images: ${{ secrets.DOCKERHUB_USERNAME }}/halo-go
           tags: |
             type=ref,event=branch
-            type=ref,event=pr
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=sha,format=short
@@ -36,7 +71,7 @@ jobs:
       - uses: docker/build-push-action@v6
         with:
           context: halo-go
-          file: halo-go/Dockerfile
+          file: Dockerfile
           platforms: linux/amd64,linux/arm64
           push: true
           tags: ${{ steps.meta.outputs.tags }}
