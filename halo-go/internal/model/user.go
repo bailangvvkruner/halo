@@ -12,8 +12,8 @@ type UserSpec struct {
 	DisplayName   string     `json:"displayName"`
 	Avatar        string     `json:"avatar,omitempty"`
 	Bio           string     `json:"bio,omitempty"`
-	Password      string     `json:"-"`
-	RawPassword   string     `json:"password,omitempty"`
+	Password      string     `json:"password,omitempty"`
+	RawPassword   string     `json:"-"`
 	LastLoginTime *time.Time `json:"lastLoginTime,omitempty"`
 }
 

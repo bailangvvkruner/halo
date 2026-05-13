@@ -5,7 +5,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/halo-dev/halo-go/internal/extension"
 	"github.com/halo-dev/halo-go/internal/model"
 	"github.com/halo-dev/halo-go/internal/service"
 )

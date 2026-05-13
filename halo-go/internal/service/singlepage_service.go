@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"time"
 
 	"github.com/halo-dev/halo-go/internal/extension"
 	"github.com/halo-dev/halo-go/internal/model"
@@ -72,7 +71,6 @@ func (s *singlePageService) Publish(ctx context.Context, name string) error {
 	if err != nil {
 		return err
 	}
-	now := time.Now()
 	sp.Spec.Publish = true
 	_, err = s.client.Update(ctx, sp)
 	return err
