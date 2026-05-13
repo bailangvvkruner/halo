@@ -28,7 +28,10 @@ func (f *themeFinder) GetActiveTheme(ctx context.Context) (*model.Theme, error) 
 	}
 
 	for _, ext := range result.Items {
-		theme := ext.(*model.Theme)
+		theme, ok := ext.(*model.Theme)
+		if !ok {
+			continue
+		}
 		if theme.Spec.Active {
 			return theme, nil
 		}
@@ -45,7 +48,11 @@ func (f *themeFinder) ListThemes(ctx context.Context) ([]*model.Theme, error) {
 
 	themes := make([]*model.Theme, 0, len(result.Items))
 	for _, ext := range result.Items {
-		themes = append(themes, ext.(*model.Theme))
+		theme, ok := ext.(*model.Theme)
+		if !ok {
+			continue
+		}
+		themes = append(themes, theme)
 	}
 
 	return themes, nil

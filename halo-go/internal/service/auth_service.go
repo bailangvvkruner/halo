@@ -40,9 +40,6 @@ func (s *authService) Login(ctx context.Context, username, password string) (str
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Spec.Password), []byte(password)); err != nil {
 		return "", fmt.Errorf("用户名或密码错误")
 	}
-	now := time.Now()
-	user.Spec.LastLoginTime = &now
-	s.userSvc.UpdateProfile(ctx, user)
 	return s.GenerateToken(user.Spec.UserName)
 }
 

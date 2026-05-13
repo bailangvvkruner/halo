@@ -84,8 +84,13 @@ func (s *userService) GetByName(ctx context.Context, userName string) (*model.Us
 	if err != nil {
 		return nil, err
 	}
-	for _, ext := range result.Items {
-		u := ext.(*model.User)
+	var items = result.Items
+	for i := 0; i < len(items); i++ {
+		ext := items[i]
+		u, ok := ext.(*model.User)
+		if !ok {
+			continue
+		}
 		if u.Spec.UserName == userName {
 			return u, nil
 		}
