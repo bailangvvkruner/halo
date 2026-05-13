@@ -1,0 +1,1 @@
+import{t as e}from"./Exception-BVnYN6ab.js";var t=window.Vue.defineComponent,n=window.Vue.openBlock,r=window.Vue.createBlock,i=t({__name:`NotFound`,setup(t){return(t,i)=>(n(),r(e,{code:`404`,message:t.$t(`core.exception.not_found.message`)},null,8,[`message`]))}});export{i as default};

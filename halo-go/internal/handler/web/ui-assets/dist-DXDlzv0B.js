@@ -1,0 +1,1 @@
+import{n as e}from"./vendor~index~index~index-BjY_IaZk.js";export{e as javascript};

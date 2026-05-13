@@ -1,0 +1,1 @@
+var e=window.Pinia.defineStore,t=window.Vue.ref,n=e(`role`,()=>({permissions:t({roles:[],permissions:[],uiPermissions:[]})}));export{n as t};

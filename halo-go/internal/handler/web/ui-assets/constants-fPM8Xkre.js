@@ -1,0 +1,1 @@
+var e=`super-role`;export{e as t};

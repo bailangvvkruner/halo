@@ -1,0 +1,1 @@
+import{n as e}from"./vendor~AttachmentFileTypeIcon~index~index-CcOgyW8c.js";export{e as yaml};

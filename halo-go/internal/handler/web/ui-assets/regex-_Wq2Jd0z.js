@@ -1,0 +1,1 @@
+var e=/^[A-Za-z0-9!@#$%^&*.?]+$/;export{e as t};

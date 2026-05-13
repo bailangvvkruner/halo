@@ -1,0 +1,1 @@
+import{i as e}from"./vendor~AttachmentFileTypeIcon~index~index-CcOgyW8c.js";export{e as json};

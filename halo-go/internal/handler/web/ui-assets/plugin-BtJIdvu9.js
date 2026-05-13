@@ -1,0 +1,1 @@
+var e=window.Pinia.defineStore,t=window.Vue.computed,n=window.Vue.shallowRef,r=e(`plugin`,()=>{let e=n({});function r(t,n){e.value={...e.value,[t]:n}}return{pluginModuleMap:e,pluginModules:t(()=>Object.values(e.value)),registerPluginModule:r}});export{r as t};

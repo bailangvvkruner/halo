@@ -1,0 +1,1 @@
+function e(e){let t=document.getElementById(e);if(t instanceof HTMLInputElement||t instanceof HTMLTextAreaElement){let e=setTimeout(()=>{let n=t.value.length;t.setSelectionRange(n,n),t?.focus(),clearTimeout(e)},0)}}export{e as t};

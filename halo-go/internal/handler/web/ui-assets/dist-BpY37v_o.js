@@ -1,0 +1,1 @@
+import{n as e}from"./vendor~index~index-brgGp31l.js";export{e as html};

@@ -1,0 +1,1 @@
+import{c as e}from"./vendor~console~uc~AttachmentList~SinglePageList~PostList~UserList~IconifyInput~SecretSelect~foe2l2qc-BLAgCd_1.js";var t=window.HaloApiClient.ucApiClient;function n(){return e({mutationKey:[`uc:publish-post`],mutationFn:async({name:e})=>await t.content.post.publishMyPost({name:e},{mute:!0}),retry:3})}export{n as t};
