@@ -8,12 +8,9 @@ services:
     ports:
       - "8090:8090"
     volumes:
-      - ~/.halo2:/root/.halo2
+      - ~/.halo2:/data
     environment:
       - GIN_MODE=release
-    command:
-      - "--halo.work-dir=/root/.halo2"
-      - "--server.port=8090"
 
   halo-java:
     image: halohub/halo:2

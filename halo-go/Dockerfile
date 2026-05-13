@@ -14,12 +14,13 @@ RUN apk add --no-cache ca-certificates tzdata sqlite-libs curl && \
     cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
     echo "Asia/Shanghai" > /etc/timezone
 
-ENV HALO_WORK_DIR=/root/.halo2 \
-    HALO_PORT=8090
+ENV HALO_PORT=8090 \
+    HALO_DB_DATASOURCE=/data/halo.db \
+    HALO_WORK_DIR=/data
 
-WORKDIR /root/.halo2
+WORKDIR /app
 
-VOLUME ["/root/.halo2"]
+VOLUME ["/data"]
 
 EXPOSE 8090
 
@@ -34,4 +35,4 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
   CMD curl -sf http://localhost:${HALO_PORT:-8090}/actuator/health || exit 1
 
 ENTRYPOINT ["halo-server"]
-CMD ["--halo.work-dir=/root/.halo2", "--server.port=8090"]
+CMD ["--halo.work-dir=/data", "--server.port=8090"]
