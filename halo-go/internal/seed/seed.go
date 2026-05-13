@@ -8,11 +8,26 @@ import (
 	"github.com/halo-dev/halo-go/internal/data"
 	"github.com/halo-dev/halo-go/internal/extension"
 	"github.com/halo-dev/halo-go/internal/model"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func SeedData(store *data.ExtensionStore, username string) error {
 	ctx := context.Background()
 	now := time.Now()
+
+	adminPwd, _ := bcrypt.GenerateFromPassword([]byte("admin"), bcrypt.DefaultCost)
+	adminUser := &model.User{}
+	adminUser.Metadata.Name = "admin"
+	adminUser.Spec.UserName = "admin"
+	adminUser.Spec.Email = "admin@halo.run"
+	adminUser.Spec.DisplayName = "admin"
+	adminUser.Spec.Password = string(adminPwd)
+	if _, err := store.Create(ctx, adminUser); err != nil {
+		log.Println("管理员用户已存在，跳过创建")
+	} else {
+		log.Println("默认管理员创建成功: admin / admin")
+	}
+
 	categoryName := "76514a40-6ef1-4ed9-b58a-e26945bde3ca"
 	tagName := "c33ceabb-d8f1-4711-8991-bb8f5c92ad7c"
 	postName := "5152aea5-c2e8-4717-8bba-2263d46e19d5"

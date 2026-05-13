@@ -10,7 +10,7 @@
 *.out
 
 # 工作目录 / 数据文件
-data/
+/data/
 *.db
 *.db-wal
 *.db-shm
