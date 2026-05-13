@@ -7,8 +7,9 @@ on:
       - trae/solo-agent-JAWhGO
     tags:
       - "v*"
-    paths-ignore:
-      - "**.md"
+    paths:
+      - "halo-go/**"
+      - ".github/workflows/docker.yml"
   pull_request:
     branches: [main]
     paths:
