@@ -25,10 +25,12 @@ type SetupStatusResponse struct {
 }
 
 type SetupRequest struct {
-	Username    string `json:"username" binding:"required,min=2,max=64"`
-	Password    string `json:"password" binding:"required,min=6,max=64"`
-	Email       string `json:"email" binding:"required,email"`
-	DisplayName string `json:"displayName"`
+	Username   string `json:"username" binding:"required,min=4,max=63"`
+	Password   string `json:"password" binding:"required,min=5,max=257"`
+	Email      string `json:"email" binding:"required,email"`
+	SiteTitle  string `json:"siteTitle" binding:"required,max=80"`
+	Language   string `json:"language" binding:"omitempty,oneof=zh-CN zh-TW en es"`
+	ExternalUrl string `json:"externalUrl" binding:"required,url"`
 }
 
 func (h *SetupHandler) GetStatus(c *gin.Context) {
@@ -80,16 +82,11 @@ func (h *SetupHandler) DoSetup(c *gin.Context) {
 		return
 	}
 
-	displayName := req.DisplayName
-	if displayName == "" {
-		displayName = req.Username
-	}
-
 	adminUser := &model.User{}
 	adminUser.Metadata.Name = "admin"
 	adminUser.Spec.UserName = req.Username
 	adminUser.Spec.Email = req.Email
-	adminUser.Spec.DisplayName = displayName
+	adminUser.Spec.DisplayName = req.Username
 	adminUser.Spec.RawPassword = req.Password
 
 	if _, err := h.store.Create(ctx, adminUser); err != nil {
@@ -101,10 +98,15 @@ func (h *SetupHandler) DoSetup(c *gin.Context) {
 		return
 	}
 
+	h.initializeSystemSettings(ctx, &req)
+	h.initializePresetData(ctx, req.Username)
+
 	c.JSON(http.StatusOK, gin.H{
 		"code":    0,
 		"message": "系统初始化成功",
-		"data":    nil,
+		"data": gin.H{
+			"redirectTo": "/console",
+		},
 	})
 }
 
@@ -119,4 +121,49 @@ func (h *SetupHandler) checkInitialized(ctx context.Context) (bool, error) {
 		}
 	}
 	return false, nil
+}
+
+func (h *SetupHandler) initializeSystemSettings(ctx context.Context, req *SetupRequest) {
+	settings := &model.SystemSettings{}
+	settings.Metadata.Name = "system"
+	settings.Spec.Basic.Title = req.SiteTitle
+	settings.Spec.Basic.Language = req.Language
+	if settings.Spec.Basic.Language == "" {
+		settings.Spec.Basic.Language = "zh-CN"
+	}
+	settings.Spec.Basic.ExternalUrl = req.ExternalUrl
+	h.store.Create(ctx, settings)
+}
+
+func (h *SetupHandler) initializePresetData(ctx context.Context, username string) {
+	defaultCategory := &model.Category{}
+	defaultCategory.Metadata.Name = "76514a40-6ef1-4ed9-b58a-e26945bde3ca"
+	defaultCategory.Spec.DisplayName = "默认分类"
+	defaultCategory.Spec.Slug = "default"
+	defaultCategory.Spec.Description = "这是你的默认分类，如不需要，删除即可。"
+	h.store.Create(ctx, defaultCategory)
+
+	haloTag := &model.Tag{}
+	haloTag.Metadata.Name = "c33ceabb-d8f1-4711-8991-bb8f5c92ad7c"
+	haloTag.Spec.DisplayName = "Halo"
+	haloTag.Spec.Slug = "halo"
+	h.store.Create(ctx, haloTag)
+
+	primaryMenu := &model.Menu{}
+	primaryMenu.Metadata.Name = "primary"
+	primaryMenu.Spec.DisplayName = "主菜单"
+	h.store.Create(ctx, primaryMenu)
+
+	homeMenuItem := &model.MenuItem{}
+	homeMenuItem.Metadata.Name = "88c3f10b-321c-4092-86a8-70db00251b74"
+	homeMenuItem.Spec.DisplayName = "首页"
+	homeMenuItem.Spec.Href = "/"
+	homeMenuItem.Spec.Priority = 0
+	h.store.Create(ctx, homeMenuItem)
+
+	adminRole := &model.Role{}
+	adminRole.Metadata.Name = "role-admin"
+	adminRole.Spec.DisplayName = "管理员"
+	adminRole.Spec.Type = "SYSTEM"
+	h.store.Create(ctx, adminRole)
 }

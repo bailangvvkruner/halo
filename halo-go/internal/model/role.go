@@ -12,7 +12,8 @@ type Rule struct {
 
 type RoleSpec struct {
 	DisplayName string            `json:"displayName"`
-	Annotations map[string]string  `json:"annotations,omitempty"`
+	Type        string            `json:"type"`
+	Annotations map[string]string `json:"annotations,omitempty"`
 	Rules       []Rule             `json:"rules"`
 }
 

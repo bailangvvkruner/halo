@@ -186,6 +186,12 @@ func RegisterRoutes(r *gin.Engine, srv *Server, cfg *config.Config, store *data.
 			stats.GET("/:name", statsHandler.GetVisitCount)
 			stats.POST("/:name/visit", statsHandler.IncrVisit)
 		}
+		systemSettingsHandler := handler.NewSystemSettingsHandler(store)
+		settings := apiV1.Group("/settings")
+		{
+			settings.GET("", systemSettingsHandler.Get)
+			settings.PUT("", systemSettingsHandler.Update)
+		}
 	}
 	publicAPI := r.Group("/api/public")
 	{
