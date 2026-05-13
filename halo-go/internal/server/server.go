@@ -53,7 +53,7 @@ func New(cfg *config.Config, db *gorm.DB) (*gin.Engine, error) {
 		AllowCredentials: true,
 		MaxAge:           12 * time.Hour,
 	}))
-	staticHandler := handler.NewStaticHandler()
+	staticHandler := handler.NewStaticHandler(cfg.WorkDir)
 	r.NoRoute(func(c *gin.Context) {
 		if staticHandler.IsHTMLRequest(c) {
 			c.Data(http.StatusOK, "text/html; charset=utf-8", []byte(consoleHTML))

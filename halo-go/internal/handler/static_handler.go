@@ -6,6 +6,7 @@ import (
 	"io/fs"
 	"net/http"
 	"net/url"
+	"os"
 	"path"
 	"strings"
 
@@ -18,14 +19,16 @@ var webFS embed.FS
 type StaticHandler struct {
 	consoleHTML []byte
 	ucHTML      []byte
+	workDir     string
 }
 
-func NewStaticHandler() *StaticHandler {
+func NewStaticHandler(workDir string) *StaticHandler {
 	consoleData, _ := webFS.ReadFile("web/console.html")
 	ucData, _ := webFS.ReadFile("web/uc.html")
 	return &StaticHandler{
 		consoleHTML: consoleData,
 		ucHTML:      ucData,
+		workDir:     workDir,
 	}
 }
 
@@ -96,6 +99,29 @@ func (h *StaticHandler) guessContentType(name string) string {
 	default:
 		return "application/octet-stream"
 	}
+}
+
+func (h *StaticHandler) ServeThemeAssets(c *gin.Context) {
+	themeName := c.Param("themeName")
+	filepath := c.Param("filepath")
+	if filepath == "" || filepath == "/" {
+		c.Status(http.StatusNotFound)
+		return
+	}
+	filepath = path.Clean(filepath)
+	if strings.HasPrefix(filepath, "/") {
+		filepath = filepath[1:]
+	}
+	assetPath := path.Join(h.workDir, "themes", themeName, "assets", filepath)
+	data, err := os.ReadFile(assetPath)
+	if err != nil {
+		c.Status(http.StatusNotFound)
+		return
+	}
+	contentType := h.guessContentType(filepath)
+	c.Header("Cache-Control", "public, max-age=31536000")
+	c.DataFromReader(http.StatusOK, int64(len(data)), contentType,
+		bytes.NewReader(data), nil)
 }
 
 func (h *StaticHandler) IsHTMLRequest(c *gin.Context) bool {

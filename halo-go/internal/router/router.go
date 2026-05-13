@@ -9,6 +9,7 @@ import (
 	"github.com/halo-dev/halo-go/internal/handler"
 	"github.com/halo-dev/halo-go/internal/middleware"
 	"github.com/halo-dev/halo-go/internal/service"
+	"github.com/halo-dev/halo-go/internal/theme"
 )
 
 type Server struct {
@@ -237,10 +238,26 @@ func RegisterRoutes(r *gin.Engine, srv *Server, cfg *config.Config, store *data.
 		setup.POST("/setup", setupHandler.DoSetup)
 	}
 
-	staticHandler := handler.NewStaticHandler()
+	staticHandler := handler.NewStaticHandler(cfg.WorkDir)
 	r.GET("/console/*filepath", staticHandler.ServeConsole)
 	r.GET("/uc/*filepath", staticHandler.ServeUC)
 	r.StaticFS("/ui-assets", staticHandler.UIAssetsFS())
+
+	r.GET("/themes/:themeName/assets/*filepath", staticHandler.ServeThemeAssets)
+
+	templateEngine := theme.NewTemplateEngine()
+	themeFinder := theme.NewThemeFinder(srv.ThemeService)
+	themeRouter := theme.NewThemeCompositeRouter(
+		templateEngine,
+		themeFinder,
+		srv.PostService,
+		srv.TagService,
+		srv.CategoryService,
+		srv.SinglePageService,
+		cfg.WorkDir,
+	)
+	if err := themeRouter.RegisterRoutes(r); err != nil {
+	}
 }
 
 var _ = extension.GVK{}

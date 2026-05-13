@@ -15,6 +15,7 @@ import (
 	"github.com/halo-dev/halo-go/internal/server"
 	"github.com/halo-dev/halo-go/internal/service"
 	"github.com/halo-dev/halo-go/internal/seed"
+	"github.com/halo-dev/halo-go/internal/theme"
 )
 
 func main() {
@@ -84,6 +85,21 @@ func main() {
 	}
 
 	router.RegisterRoutes(engine, srv, cfg, store)
+
+	templateEngine := theme.NewTemplateEngine()
+	themeFinder := theme.NewThemeFinder(themeService)
+	themeRouter := theme.NewThemeCompositeRouter(
+		templateEngine,
+		themeFinder,
+		postService,
+		tagService,
+		categoryService,
+		singlePageService,
+		cfg.WorkDir,
+	)
+	if err := themeRouter.RegisterRoutes(engine); err != nil {
+		log.Printf("警告: 主题路由注册失败: %v", err)
+	}
 
 	defaultUser := "admin"
 	if err := seed.SeedData(store, defaultUser); err != nil {
