@@ -2,9 +2,13 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, trae/solo-agent-JAWhGO]
+    paths:
+      - "halo-go/**"
   pull_request:
     branches: [main]
+    paths:
+      - "halo-go/**"
 
 jobs:
   build:
