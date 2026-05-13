@@ -14,6 +14,7 @@ type Server struct {
 	PostService        service.PostService
 	CategoryService    service.CategoryService
 	TagService         service.TagService
+	SinglePageService  service.SinglePageService
 	CommentService     service.CommentService
 	ReplyService       service.ReplyService
 	UserService        service.UserService
@@ -162,6 +163,19 @@ func RegisterRoutes(r *gin.Engine, srv *Server, cfg *config.Config) {
 			notifications.PUT("/:name", notificationHandler.Update)
 			notifications.DELETE("/:name", notificationHandler.Delete)
 			notifications.PUT("/:name/read", notificationHandler.MarkRead)
+		}
+		singlePageHandler := handler.NewSinglePageHandler(srv.SinglePageService)
+		singlePages := apiV1.Group("/singlepages")
+		{
+			singlePages.POST("", singlePageHandler.Create)
+			singlePages.GET("", singlePageHandler.List)
+			singlePages.GET("/:name", singlePageHandler.Get)
+			singlePages.PUT("/:name", singlePageHandler.Update)
+			singlePages.DELETE("/:name", singlePageHandler.Delete)
+			singlePages.PUT("/:name/publish", singlePageHandler.Publish)
+			singlePages.PUT("/:name/unpublish", singlePageHandler.Unpublish)
+			singlePages.PUT("/:name/trash", singlePageHandler.Trash)
+			singlePages.PUT("/:name/restore", singlePageHandler.Restore)
 		}
 		statsHandler := handler.NewStatsHandler(srv.StatsService)
 		stats := apiV1.Group("/stats")

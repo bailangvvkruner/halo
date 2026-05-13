@@ -43,6 +43,7 @@ func main() {
 	postService := service.NewPostService(client)
 	categoryService := service.NewCategoryService(client)
 	tagService := service.NewTagService(client)
+	singlePageService := service.NewSinglePageService(client)
 	replyService := service.NewReplyService(client)
 	commentService := service.NewCommentService(client, replyService)
 	userService := service.NewUserService(client)
@@ -61,6 +62,7 @@ func main() {
 		PostService:         postService,
 		CategoryService:     categoryService,
 		TagService:          tagService,
+		SinglePageService:   singlePageService,
 		CommentService:      commentService,
 		ReplyService:        replyService,
 		UserService:         userService,
