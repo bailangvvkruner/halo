@@ -16,6 +16,7 @@ type CommentService interface {
 	List(ctx context.Context, opts *extension.ListOptions) (*extension.ListResult[extension.Extension], error)
 	Approve(ctx context.Context, name string) error
 	ReplyTo(ctx context.Context, commentName string, reply *model.Reply) error
+	CreateReply(ctx context.Context, reply *model.Reply) (*model.Reply, error)
 }
 
 type commentService struct {
@@ -79,4 +80,8 @@ func (s *commentService) ReplyTo(ctx context.Context, commentName string, reply 
 	reply.Spec.CommentName = commentName
 	_, err := s.replySvc.Create(ctx, reply)
 	return err
+}
+
+func (s *commentService) CreateReply(ctx context.Context, reply *model.Reply) (*model.Reply, error) {
+	return s.replySvc.Create(ctx, reply)
 }

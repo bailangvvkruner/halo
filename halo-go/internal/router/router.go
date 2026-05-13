@@ -123,11 +123,15 @@ func RegisterRoutes(r *gin.Engine, srv *Server, cfg *config.Config, store *data.
 		themes := apiV1.Group("/themes")
 		{
 			themes.POST("", themeHandler.Create)
+			themes.POST("/install", themeHandler.Install)
 			themes.GET("", themeHandler.List)
 			themes.GET("/:name", themeHandler.Get)
 			themes.PUT("/:name", themeHandler.Update)
 			themes.DELETE("/:name", themeHandler.Delete)
 			themes.PUT("/:name/activate", themeHandler.Activate)
+			themes.GET("/:name/config", themeHandler.GetConfig)
+			themes.PUT("/:name/config", themeHandler.SaveConfig)
+			themes.GET("/:name/templates", themeHandler.GetTemplates)
 		}
 		menuHandler := handler.NewMenuHandler(srv.MenuService)
 		menus := apiV1.Group("/menus")
@@ -191,6 +195,27 @@ func RegisterRoutes(r *gin.Engine, srv *Server, cfg *config.Config, store *data.
 		{
 			settings.GET("", systemSettingsHandler.Get)
 			settings.PUT("", systemSettingsHandler.Update)
+		}
+		searchHandler := handler.NewSearchHandler(srv.PostService, srv.SinglePageService, srv.CategoryService, srv.TagService)
+		apiV1.GET("/search", searchHandler.Search)
+
+		backupHandler := handler.NewBackupHandler(store, cfg)
+		backups := apiV1.Group("/backups")
+		{
+			backups.POST("", backupHandler.Create)
+			backups.GET("", backupHandler.List)
+			backups.GET("/download/:filename", backupHandler.Download)
+			backups.POST("/restore", backupHandler.Restore)
+			backups.DELETE("/:filename", backupHandler.Delete)
+		}
+
+		pluginMarketHandler := handler.NewPluginMarketHandler(srv.PluginService)
+		market := apiV1.Group("/market/plugins")
+		{
+			market.GET("", pluginMarketHandler.GetPresetPlugins)
+			market.POST("/install", pluginMarketHandler.InstallFromURL)
+			market.POST("/upload", pluginMarketHandler.Upload)
+			market.GET("/:name/check-update", pluginMarketHandler.CheckUpdate)
 		}
 	}
 	publicAPI := r.Group("/api/public")

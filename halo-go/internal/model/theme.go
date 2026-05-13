@@ -13,6 +13,7 @@ type ThemeSpec struct {
 	Requires      string `json:"requires,omitempty"`
 	SettingName   string `json:"settingName,omitempty"`
 	Active        bool   `json:"active"`
+	Installed     bool   `json:"installed,omitempty"`
 	ConfigMapName string `json:"configMapName,omitempty"`
 }
 

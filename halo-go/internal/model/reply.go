@@ -7,14 +7,18 @@ import (
 )
 
 type ReplySpec struct {
-	Raw            string    `json:"raw"`
-	Content        string    `json:"content"`
-	Owner          string    `json:"owner"`
-	CommentName    string    `json:"commentName"`
-	QuoteReplyName string    `json:"quoteReplyName,omitempty"`
-	Approved       bool      `json:"approved"`
-	CreateTime     time.Time `json:"createTime"`
-	LastModifyTime time.Time `json:"lastModifyTime"`
+	Raw            string     `json:"raw"`
+	Content        string     `json:"content"`
+	RawContent     string     `json:"rawContent"`
+	Owner          string     `json:"owner"`
+	CommentName    string     `json:"commentName"`
+	QuoteReplyName string     `json:"quoteReplyName,omitempty"`
+	AllowNotification bool   `json:"allowNotification"`
+	Approved       bool       `json:"approved"`
+	Reason         string     `json:"reason,omitempty"`
+	ApproveTime    *time.Time `json:"approveTime,omitempty"`
+	CreateTime     time.Time  `json:"createTime"`
+	LastModifyTime time.Time  `json:"lastModifyTime"`
 }
 
 type ReplyStatus struct{}

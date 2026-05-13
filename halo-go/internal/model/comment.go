@@ -9,10 +9,14 @@ import (
 type CommentSpec struct {
 	Raw              string           `json:"raw"`
 	Content          string           `json:"content"`
+	RawContent       string           `json:"rawContent"`
+	IP               string           `json:"ip"`
 	Owner            string           `json:"owner"`
 	SubjectRef       extension.Ref    `json:"subjectRef"`
 	AllowNotification bool            `json:"allowNotification"`
 	Approved         bool             `json:"approved"`
+	Reason           string           `json:"reason,omitempty"`
+	ApproveTime      *time.Time       `json:"approveTime,omitempty"`
 	TopPriority      bool             `json:"topPriority"`
 	CreateTime       time.Time        `json:"createTime"`
 	LastModifyTime   time.Time        `json:"lastModifyTime"`

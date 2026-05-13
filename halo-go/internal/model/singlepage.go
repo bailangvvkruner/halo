@@ -5,6 +5,7 @@ import "github.com/halo-dev/halo-go/internal/extension"
 type SinglePageSpec struct {
 	Title           string      `json:"title"`
 	Slug            string      `json:"slug"`
+	Content         string      `json:"content,omitempty"`
 	ReleaseSnapshot string      `json:"releaseSnapshot,omitempty"`
 	HeadSnapshot    string      `json:"headSnapshot"`
 	BaseSnapshot    string      `json:"baseSnapshot"`
